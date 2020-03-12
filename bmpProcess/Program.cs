@@ -5,6 +5,7 @@ using System.Windows.Forms;
 
 namespace bmpProcess
 {
+    
     static class Program
     {
         /// <summary>

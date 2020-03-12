@@ -42,6 +42,10 @@
             this.subButt = new System.Windows.Forms.Button();
             this.mulButt = new System.Windows.Forms.Button();
             this.divButt = new System.Windows.Forms.Button();
+            this.andButt = new System.Windows.Forms.Button();
+            this.orButt = new System.Windows.Forms.Button();
+            this.noButt = new System.Windows.Forms.Button();
+            this.openGeo = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.InPicBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.InPicBox2)).BeginInit();
@@ -183,11 +187,55 @@
             this.divButt.UseVisualStyleBackColor = true;
             this.divButt.Click += new System.EventHandler(this.divButt_Click);
             // 
+            // andButt
+            // 
+            this.andButt.Location = new System.Drawing.Point(581, 526);
+            this.andButt.Name = "andButt";
+            this.andButt.Size = new System.Drawing.Size(100, 30);
+            this.andButt.TabIndex = 15;
+            this.andButt.Text = "1-2与";
+            this.andButt.UseVisualStyleBackColor = true;
+            this.andButt.Click += new System.EventHandler(this.andButt_Click);
+            // 
+            // orButt
+            // 
+            this.orButt.Location = new System.Drawing.Point(702, 526);
+            this.orButt.Name = "orButt";
+            this.orButt.Size = new System.Drawing.Size(100, 30);
+            this.orButt.TabIndex = 16;
+            this.orButt.Text = "1-2或";
+            this.orButt.UseVisualStyleBackColor = true;
+            this.orButt.Click += new System.EventHandler(this.orButt_Click);
+            // 
+            // noButt
+            // 
+            this.noButt.Location = new System.Drawing.Point(827, 526);
+            this.noButt.Name = "noButt";
+            this.noButt.Size = new System.Drawing.Size(100, 30);
+            this.noButt.TabIndex = 17;
+            this.noButt.Text = "1-非";
+            this.noButt.UseVisualStyleBackColor = true;
+            this.noButt.Click += new System.EventHandler(this.noButt_Click);
+            // 
+            // openGeo
+            // 
+            this.openGeo.Location = new System.Drawing.Point(827, 25);
+            this.openGeo.Name = "openGeo";
+            this.openGeo.Size = new System.Drawing.Size(100, 30);
+            this.openGeo.TabIndex = 18;
+            this.openGeo.Text = "几何运算";
+            this.openGeo.UseVisualStyleBackColor = true;
+            this.openGeo.Click += new System.EventHandler(this.openGeo_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1087, 612);
+            this.Controls.Add(this.openGeo);
+            this.Controls.Add(this.noButt);
+            this.Controls.Add(this.orButt);
+            this.Controls.Add(this.andButt);
             this.Controls.Add(this.divButt);
             this.Controls.Add(this.mulButt);
             this.Controls.Add(this.subButt);
@@ -229,6 +277,10 @@
         private System.Windows.Forms.Button subButt;
         private System.Windows.Forms.Button mulButt;
         private System.Windows.Forms.Button divButt;
+        private System.Windows.Forms.Button andButt;
+        private System.Windows.Forms.Button orButt;
+        private System.Windows.Forms.Button noButt;
+        private System.Windows.Forms.Button openGeo;
     }
 }
 

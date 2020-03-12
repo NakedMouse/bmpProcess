@@ -256,6 +256,74 @@ namespace bmpProcess
             }
         }
 
+        private void andButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
+                {
+                    if (process.logicOperator(inPic1, inPic2, out outPic, 1))
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }            
+        }
+
+        private void orButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
+                {
+                    if (process.logicOperator(inPic1, inPic2, out outPic, 2))
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }         
+        }
+
+        private void noButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (inPic1.fileHader.bfType == 19778 )
+                {
+                    if (process.notOperator(inPic1, out outPic))
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }   
+
+        }
+
+        private void openGeo_Click(object sender, EventArgs e)
+        {
+            //Application.Run(new geo());
+            Geo geo = new Geo();
+            geo.Show();
+        }
+
 
     }
 }

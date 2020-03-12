@@ -37,8 +37,6 @@ namespace bmpProcess
         public uint length;
     };
 
-
-
     public class process
     {
         public FileStream fs;
@@ -46,7 +44,8 @@ namespace bmpProcess
         public FileHader fileHader;
         public InfoHader infoHader;
         public byte[] colorTable;
-        public byte[] pixelData; 
+        public byte[] pixelData;
+        int tag = 0;
 
         public process()
         { 
@@ -173,13 +172,32 @@ namespace bmpProcess
                 case 5:
                     outFileName = "out//" + fname + "_Div.bmp";
                     break;
+                case 6:
+                    outFileName = "out//" + fname + "_And.bmp";
+                    break;
+                case 7:
+                    outFileName = "out//" + fname + "_Or.bmp";
+                    break;
+                case 8 :
+                    outFileName = "out//" + fname + "_Not.bmp";
+                    break;
                 default:
                     outFileName = "out//" + fname + "_none.bmp";
                     break;
             }
 
-
-            this.fs = new FileStream(outFileName, FileMode.OpenOrCreate);
+            try
+            {
+                this.fs = new FileStream(outFileName, FileMode.OpenOrCreate);
+            }
+            catch (Exception e1)
+            {
+                int index = 0;
+                index = outFileName.LastIndexOf('_');
+                outFileName.Insert(index, tag.ToString());
+                this.fs = new FileStream(outFileName, FileMode.OpenOrCreate);
+                tag++;
+            }
             //结构体到字节数组
             IntPtr filePtr = Marshal.AllocHGlobal(14);
             Marshal.StructureToPtr(this.fileHader,filePtr,false);
@@ -212,15 +230,11 @@ namespace bmpProcess
                 return false;
             }
             outPic = (process)inPic1.MemberwiseClone();
-            if (outPic.fileHader.bfOffBits == 54)
+            if (outPic.fileHader.bfOffBits != 54)
             {
-                outPic.pixelData = (byte[])inPic1.pixelData.Clone();
-            }
-            else
-            {
-                outPic.pixelData = (byte[])inPic1.pixelData.Clone();
                 outPic.colorTable = (byte[])inPic1.colorTable.Clone();
             }
+            outPic.pixelData = (byte[])inPic1.pixelData.Clone();
 
             for (int i = 0; i < inPic1.infoHader.length; i++)
             {
@@ -260,11 +274,78 @@ namespace bmpProcess
         {
             outPic = new process();
             //对每一个字节进行二进制与或运算，不用转化为二值图像
+            if (inPic1.infoHader.biWidth != inPic2.infoHader.biWidth && inPic1.infoHader.biHeight != inPic2.infoHader.biHeight)
+            {
+                return false;
+            }
+            outPic = (process)inPic1.MemberwiseClone();
+            if (outPic.fileHader.bfOffBits != 54)
+            {
+                outPic.colorTable = (byte[])inPic1.colorTable.Clone();
+            }
+            outPic.pixelData = (byte[])inPic1.pixelData.Clone();
 
+            for (int i = 0; i < inPic1.infoHader.length; i++)
+            {
+                byte temp = 0;
+                switch (mode)
+                {
+                    case 1:
+                        temp = (byte) (inPic1.pixelData[i] & inPic2.pixelData[i]);
+                        break;
+                    case 2:
+                        temp = (byte)(inPic1.pixelData[i] | inPic2.pixelData[i]);
+                        break;
+                    default:
+                        break;
 
+                }
+                outPic.pixelData[i] = temp;
+            }
+            outPic.toFileStream(inPic1.fs.Name, mode + 5);
 
-
-            return false;
+            return true ;
         }
+
+        public static bool notOperator(process inPic1,out process outPic)
+        {
+            outPic = new process();
+            //对每一个字节进行二进制与或运算，不用转化为二值图像
+            outPic = (process)inPic1.MemberwiseClone();
+            if (outPic.fileHader.bfOffBits != 54)
+            {
+                outPic.colorTable = (byte[])inPic1.colorTable.Clone();
+            }
+            outPic.pixelData = (byte[])inPic1.pixelData.Clone();
+
+            for (int i = 0; i < inPic1.infoHader.length; i++)
+            {
+                byte temp = 0;
+                temp = (byte)~inPic1.pixelData[i];
+                outPic.pixelData[i] = temp;
+            }
+
+            outPic.toFileStream(inPic1.fs.Name, 8);
+            return true;
+        }
+
+        public static bool move(process inPic , out process outPic)
+        {
+            outPic = new process();
+            outPic = (process)inPic.MemberwiseClone();
+            if (outPic.fileHader.bfOffBits != 54)
+            {
+                outPic.colorTable = (byte[])inPic.colorTable.Clone();
+            }
+            outPic.pixelData = (byte[])inPic.pixelData.Clone();
+
+            int xMovePix = (int)(inPic.infoHader.biWidth / 10);
+            int yMovePix = (int)(inPic.infoHader.biHeight / 10);
+
+            
+
+            return true;
+        }
+
     }
 }
