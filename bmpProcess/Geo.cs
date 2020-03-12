@@ -35,11 +35,11 @@ namespace bmpProcess
                 {
                     pathname = file.FileName;
                     fs = new FileStream(pathname, FileMode.Open, FileAccess.ReadWrite);
-                    this.inBox.Image = System.Drawing.Image.FromStream(fs);
+                    this.inPicBox.Image = System.Drawing.Image.FromStream(fs);
                     //this.picBoxL.Load(pathname);
                     if (isRshow)
                     {
-                        this.outBox.Image = null;
+                        this.outPicBox.Image = null;
                         isRshow = false;
                     }
                     if (fs != null)
@@ -67,7 +67,42 @@ namespace bmpProcess
 
         private void moveButt_Click(object sender, EventArgs e)
         {
+            try
+            {
+                if (inPic.fileHader.bfType == 19778)
+                {
+                    if (process.move(inPic, out outPic))
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
+        private void mirrorButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (inPic.fileHader.bfType == 19778)
+                {
+                    if (process.mirror(inPic, out outPic))
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
     }

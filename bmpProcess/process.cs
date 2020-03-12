@@ -181,6 +181,12 @@ namespace bmpProcess
                 case 8 :
                     outFileName = "out//" + fname + "_Not.bmp";
                     break;
+                case 9:
+                    outFileName = "out//" + fname + "_Move.bmp";
+                    break;
+                case 10:
+                    outFileName = "out//" + fname + "_Mirror.bmp";
+                    break;
                 default:
                     outFileName = "out//" + fname + "_none.bmp";
                     break;
@@ -220,6 +226,15 @@ namespace bmpProcess
             fs.Write(this.pixelData, 0, (int)this.infoHader.length);
         }
 
+        private static void copy(process inPic , out process outPic)
+        {
+            outPic = (process)inPic.MemberwiseClone();
+            if (outPic.fileHader.bfOffBits != 54)
+            {
+                outPic.colorTable = (byte[])inPic.colorTable.Clone();
+            }
+            outPic.pixelData = (byte[])inPic.pixelData.Clone();
+        }
         //mode 1,2,3,4分别表示加减乘除
         public static bool norOperator(process inPic1, process inPic2, out process outPic , int mode)
         {
@@ -229,12 +244,7 @@ namespace bmpProcess
                 outPic = new process();
                 return false;
             }
-            outPic = (process)inPic1.MemberwiseClone();
-            if (outPic.fileHader.bfOffBits != 54)
-            {
-                outPic.colorTable = (byte[])inPic1.colorTable.Clone();
-            }
-            outPic.pixelData = (byte[])inPic1.pixelData.Clone();
+            process.copy(inPic1, out outPic);
 
             for (int i = 0; i < inPic1.infoHader.length; i++)
             {
@@ -278,12 +288,7 @@ namespace bmpProcess
             {
                 return false;
             }
-            outPic = (process)inPic1.MemberwiseClone();
-            if (outPic.fileHader.bfOffBits != 54)
-            {
-                outPic.colorTable = (byte[])inPic1.colorTable.Clone();
-            }
-            outPic.pixelData = (byte[])inPic1.pixelData.Clone();
+            process.copy(inPic1, out outPic);
 
             for (int i = 0; i < inPic1.infoHader.length; i++)
             {
@@ -311,12 +316,7 @@ namespace bmpProcess
         {
             outPic = new process();
             //对每一个字节进行二进制与或运算，不用转化为二值图像
-            outPic = (process)inPic1.MemberwiseClone();
-            if (outPic.fileHader.bfOffBits != 54)
-            {
-                outPic.colorTable = (byte[])inPic1.colorTable.Clone();
-            }
-            outPic.pixelData = (byte[])inPic1.pixelData.Clone();
+            process.copy(inPic1, out outPic);
 
             for (int i = 0; i < inPic1.infoHader.length; i++)
             {
@@ -328,7 +328,8 @@ namespace bmpProcess
             outPic.toFileStream(inPic1.fs.Name, 8);
             return true;
         }
-
+        
+        //时间关系仅做固定尺寸平移，其他方向的平移后续补上
         public static bool move(process inPic , out process outPic)
         {
             outPic = new process();
@@ -337,15 +338,42 @@ namespace bmpProcess
             {
                 outPic.colorTable = (byte[])inPic.colorTable.Clone();
             }
-            outPic.pixelData = (byte[])inPic.pixelData.Clone();
+            outPic.pixelData = new byte[inPic.pixelData.Length];
 
             int xMovePix = (int)(inPic.infoHader.biWidth / 10);
             int yMovePix = (int)(inPic.infoHader.biHeight / 10);
-
             
+            for (int h = 0, i = 0; h < inPic.infoHader.biHeight - yMovePix; h++)
+            {
+                for (i = 0; i < inPic.infoHader.l_width - xMovePix*inPic.infoHader.channels; i++)
+                {
+                    outPic.pixelData[(h + yMovePix) * inPic.infoHader.l_width + (xMovePix) * inPic.infoHader.channels + i] =
+                        inPic.pixelData[h * inPic.infoHader.l_width + i];
+                }
+            }
 
+            outPic.toFileStream(inPic.fs.Name, 9);
             return true;
         }
 
+        //时间关系仅完成水平镜像，垂直镜像后续补上
+        public static bool mirror(process inPic, out process outPic)
+        {
+            outPic = new process();
+            process.copy(inPic, out outPic);
+
+            uint lw = inPic.infoHader.l_width;
+            int fixNum = (int)(lw - inPic.infoHader.biWidth * inPic.infoHader.channels);
+            for (int h = 0, i = 0; h < inPic.infoHader.biHeight; h++)
+            {
+                for (i = 0; i < lw - fixNum; i++)
+                {
+                    outPic.pixelData[(h + 1) * lw - i - fixNum-1] = inPic.pixelData[h * lw + i];
+                }
+
+            }
+            outPic.toFileStream(inPic.fs.Name, 10);
+            return true;
+        }
     }
 }

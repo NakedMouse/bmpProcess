@@ -29,15 +29,15 @@
         private void InitializeComponent()
         {
             this.geoOpenIn = new System.Windows.Forms.Button();
-            this.outBox = new System.Windows.Forms.PictureBox();
-            this.inBox = new System.Windows.Forms.PictureBox();
+            this.outPicBox = new System.Windows.Forms.PictureBox();
+            this.inPicBox = new System.Windows.Forms.PictureBox();
             this.moveButt = new System.Windows.Forms.Button();
             this.spinButt = new System.Windows.Forms.Button();
             this.bigButt = new System.Windows.Forms.Button();
             this.smallButt = new System.Windows.Forms.Button();
             this.mirrorButt = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.outBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.inBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).BeginInit();
             this.SuspendLayout();
             // 
             // geoOpenIn
@@ -51,23 +51,23 @@
             this.geoOpenIn.UseVisualStyleBackColor = true;
             this.geoOpenIn.Click += new System.EventHandler(this.geoOpenIn_Click);
             // 
-            // outBox
+            // outPicBox
             // 
-            this.outBox.Location = new System.Drawing.Point(592, 101);
-            this.outBox.Name = "outBox";
-            this.outBox.Size = new System.Drawing.Size(450, 450);
-            this.outBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.outBox.TabIndex = 6;
-            this.outBox.TabStop = false;
+            this.outPicBox.Location = new System.Drawing.Point(592, 101);
+            this.outPicBox.Name = "outPicBox";
+            this.outPicBox.Size = new System.Drawing.Size(450, 450);
+            this.outPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.outPicBox.TabIndex = 6;
+            this.outPicBox.TabStop = false;
             // 
-            // inBox
+            // inPicBox
             // 
-            this.inBox.Location = new System.Drawing.Point(30, 101);
-            this.inBox.Name = "inBox";
-            this.inBox.Size = new System.Drawing.Size(450, 450);
-            this.inBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.inBox.TabIndex = 7;
-            this.inBox.TabStop = false;
+            this.inPicBox.Location = new System.Drawing.Point(30, 101);
+            this.inPicBox.Name = "inPicBox";
+            this.inPicBox.Size = new System.Drawing.Size(450, 450);
+            this.inPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.inPicBox.TabIndex = 7;
+            this.inPicBox.TabStop = false;
             // 
             // moveButt
             // 
@@ -119,6 +119,7 @@
             this.mirrorButt.TabIndex = 12;
             this.mirrorButt.Text = "镜像";
             this.mirrorButt.UseVisualStyleBackColor = true;
+            this.mirrorButt.Click += new System.EventHandler(this.mirrorButt_Click);
             // 
             // Geo
             // 
@@ -130,14 +131,14 @@
             this.Controls.Add(this.bigButt);
             this.Controls.Add(this.spinButt);
             this.Controls.Add(this.moveButt);
-            this.Controls.Add(this.inBox);
-            this.Controls.Add(this.outBox);
+            this.Controls.Add(this.inPicBox);
+            this.Controls.Add(this.outPicBox);
             this.Controls.Add(this.geoOpenIn);
             this.Name = "Geo";
             this.Text = "Geo";
             this.Load += new System.EventHandler(this.Geo_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.outBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.inBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -145,8 +146,8 @@
         #endregion
 
         private System.Windows.Forms.Button geoOpenIn;
-        private System.Windows.Forms.PictureBox outBox;
-        private System.Windows.Forms.PictureBox inBox;
+        private System.Windows.Forms.PictureBox outPicBox;
+        private System.Windows.Forms.PictureBox inPicBox;
         private System.Windows.Forms.Button moveButt;
         private System.Windows.Forms.Button spinButt;
         private System.Windows.Forms.Button bigButt;
