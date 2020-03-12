@@ -12,8 +12,9 @@ namespace bmpProcess
     public partial class Form1 : Form
     {
         public FileStream fs;
-        public process picL;
-        public process picR;
+        public process inPic1;
+        public process inPic2;
+        public process outPic;
         public Form1()
         {
             InitializeComponent();
@@ -24,13 +25,13 @@ namespace bmpProcess
         private void run_Click(object sender, EventArgs e)
         {
             //showRight(pathname);
-            picR = new process();
-            if (picL.transToGray(out picR)) 
+            outPic = new process();
+            if (inPic1.transToGray(out outPic)) 
             {
-                this.picBoxR.Image = Image.FromStream(picR.fs);
+                this.outPicBox.Image = Image.FromStream(outPic.fs);
                 isRshow = true;
+                outPic.fs.Close();
             }
-            picR.fs.Close();
         } 
 
         public void showLeft(string filePath)
@@ -44,7 +45,7 @@ namespace bmpProcess
             {
                 try
                 {
-                    this.picBoxR.Load(pathname);
+                    this.outPicBox.Load(pathname);
                     isRshow = true;
                 }
                 catch (Exception ex)
@@ -57,24 +58,49 @@ namespace bmpProcess
             }
         }
 
-        private void saveButt_Click(object sender, EventArgs e)
+        //private void saveButt_Click(object sender, EventArgs e)
+        //{
+        //    try{
+        //        if (pathname != string.Empty)
+        //        {
+        //            SaveFileDialog save = new SaveFileDialog();
+        //            save.ShowDialog();
+        //            InPicBox1.Image.Save(save.FileName);
+        //            MessageBox.Show("Save success!");
+        //        }
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        MessageBox.Show("Input a file name as a bmp file\n"+ex);
+        //    }
+        //}
+
+
+        private void Form1_Load(object sender, EventArgs e)
         {
-            try{
-                if (pathname != string.Empty)
-                {
-                    SaveFileDialog save = new SaveFileDialog();
-                    save.ShowDialog();
-                    picBoxL.Image.Save(save.FileName);
-                    MessageBox.Show("Save success!");
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show("Input a file name as a bmp file\n"+ex);
-            }
+            inPic1 = new process();
+            inPic2 = new process();
+            outPic = new process();
         }
 
-        private void openButt_Click(object sender, EventArgs e)
+        private void closeButt_Click(object sender, EventArgs e)
+        {
+            this.outPicBox.Image = null;
+            this.InPicBox1.Image = null;
+            this.InPicBox2.Image = null;
+            try
+            {
+                inPic1.fs.Close();
+                inPic2.fs.Close();
+                outPic.fs.Close();
+            }
+            catch (Exception ex) {
+                MessageBox.Show(ex.Message);
+            }
+            fs.Close();
+        }
+
+        private void openInPic2_Click(object sender, EventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();
             file.InitialDirectory = ",";
@@ -85,21 +111,21 @@ namespace bmpProcess
                 try
                 {
                     pathname = file.FileName;
-                     fs = new FileStream(pathname, FileMode.Open, FileAccess.ReadWrite);
-                    this.picBoxL.Image = System.Drawing.Image.FromStream(fs);
+                    fs = new FileStream(pathname, FileMode.Open, FileAccess.ReadWrite);
+                    this.InPicBox2.Image = System.Drawing.Image.FromStream(fs);
                     //this.picBoxL.Load(pathname);
                     if (isRshow)
                     {
-                        this.picBoxR.Image = null;
+                        this.outPicBox.Image = null;
                         isRshow = false;
                     }
                     if (fs != null)
                     {
-                        picL = new process();
-                        picL.getData(fs);
+                        //inPic2 = new process();
+                        inPic2.getData(fs);
                         //ulong a = pic.fileHader.bfSize;
-                        string str = "type:" + (picL.fileHader.bfType - 0x0).ToString() + "  offBits:" + (picL.fileHader.bfOffBits-0).ToString();
-                        MessageBox.Show(str);
+                        //string str = "type:" + (inPic1.fileHader.bfType - 0x0).ToString() + "  offBits:" + (inPic1.fileHader.bfOffBits - 0).ToString();
+                        //MessageBox.Show(str);
                     }
                 }
                 catch (Exception ex)
@@ -109,16 +135,125 @@ namespace bmpProcess
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void openInPic1_Click_1(object sender, EventArgs e)
         {
+            OpenFileDialog file = new OpenFileDialog();
+            file.InitialDirectory = ",";
+            file.Filter = "所有文件(*.*)|*.*";
+            file.ShowDialog();
+            if (file.FileName != string.Empty)
+            {
+                try
+                {
+                    pathname = file.FileName;
+                    fs = new FileStream(pathname, FileMode.Open, FileAccess.ReadWrite);
+                    this.InPicBox1.Image = System.Drawing.Image.FromStream(fs);
+                    //this.picBoxL.Load(pathname);
+                    if (isRshow)
+                    {
+                        this.outPicBox.Image = null;
+                        isRshow = false;
+                    }
+                    if (fs != null)
+                    {
+                        //inPic1 = new process();
+                        inPic1.getData(fs);
+                        //ulong a = pic.fileHader.bfSize;
+                        //string str = "type:" + (inPic1.fileHader.bfType - 0x0).ToString() + "  offBits:" + (inPic1.fileHader.bfOffBits - 0).ToString();
+                        //MessageBox.Show(str);
+                    }
+                    fs.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+        private void sumButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
+                {
+                    if (process.norOperator(inPic1, inPic2, out outPic,1))
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please open two picture with same size!\n");
+            }
 
         }
 
-        private void closeButt_Click(object sender, EventArgs e)
+        private void subButt_Click(object sender, EventArgs e)
         {
-            this.picBoxR.Image = null;
-            this.picBoxL.Image = null;
-            fs.Close();
+            try
+            {
+                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
+                {
+                    if (process.norOperator(inPic1, inPic2, out outPic,2))
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please open two BMP files have same size!\n");
+            }
+        }
+
+        private void mulButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
+                {
+                    if (process.norOperator(inPic1, inPic2, out outPic,3))
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please open two BMP files have same size!\n");
+            }
+        }
+
+        private void divButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
+                {
+                    if (process.norOperator(inPic1, inPic2, out outPic,4))
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please open two BMP files have same size!\n");
+            }
         }
 
 

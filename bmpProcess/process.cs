@@ -94,26 +94,27 @@ namespace bmpProcess
             //filestream.Close();
         }
 
-        public bool transToGray(out process picR)
+        public bool transToGray(out process outPic)
         {
             if (infoHader.channels != 3) 
             {
-                picR = new process();
+                outPic = new process();
                 return false;
             }
             //picR.fileHader = this.fileHader;
-            picR = (process) this.MemberwiseClone();
-            if (picR.fileHader.bfOffBits == 54)         //将原图片复制到新图片中 
+            outPic = (process)this.MemberwiseClone();
+            if (outPic.fileHader.bfOffBits == 54)         //将原图片复制到新图片中 
             {
                 //this.pixelData.CopyTo(picR.pixelData, 0);
-                picR.pixelData =(byte[]) pixelData.Clone();
+                outPic.pixelData = (byte[])pixelData.Clone();
             }
             else 
             {
+                //索引色暂时未适配
                 //this.pixelData.CopyTo(picR.pixelData, this.infoHader.length);
                 //this.colorTable.CopyTo(picR.colorTable, (int)(picR.fileHader.bfOffBits - 54));
-                this.pixelData.CopyTo(picR.pixelData, 0);
-                this.colorTable.CopyTo(picR.colorTable, 0);
+                this.pixelData.CopyTo(outPic.pixelData, 0);
+                this.colorTable.CopyTo(outPic.colorTable, 0);
             }
 
             uint fixNum = infoHader.l_width - infoHader.biWidth * infoHader.channels;
@@ -129,29 +130,53 @@ namespace bmpProcess
 			        uint B = (uint)pixelData[h * infoHader.l_width + i + 2];
 			        i += 3;
 			        temp = (R * 299 + G * 587 + B * 144 + 500) / 1000;
+                    if (temp > 255) temp = 255;
 			        charTemp = (Byte)(0xff & temp);
-                    picR.pixelData[h * infoHader.l_width + grayIndex] = charTemp;
-                    picR.pixelData[h * infoHader.l_width + grayIndex + 1] = charTemp;
-                    picR.pixelData[h * infoHader.l_width + grayIndex + 2] = charTemp;
+                    outPic.pixelData[h * infoHader.l_width + grayIndex] = charTemp;
+                    outPic.pixelData[h * infoHader.l_width + grayIndex + 1] = charTemp;
+                    outPic.pixelData[h * infoHader.l_width + grayIndex + 2] = charTemp;
 		        }
 
 		        //补位
 		        charTemp = 0xff;
 		        for (uint j = 0; j < fixNum; j++) {
-                    picR.pixelData[h * infoHader.l_width + w * infoHader.channels + j] = charTemp;
+                    outPic.pixelData[h * infoHader.l_width + w * infoHader.channels + j] = charTemp;
 		        }
 	        }
 
-            picR.toFileStream(this.fs.Name);
+            outPic.toFileStream(this.fs.Name , 1);
             return true;
         }
 
-        public void toFileStream(string filename)
+        /*第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除*/
+        //第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除
+        public void toFileStream(string filename , int mode)
         {
             int lastIndex = filename.LastIndexOf('.');
             int preIndex = filename.LastIndexOf('\\');
             string fname = filename.Substring(preIndex+1, lastIndex - preIndex-1);
-            string outFileName = "out//" + fname + "_toGray.bmp";
+            string outFileName;
+            switch (mode)
+            {
+                case 1:
+                    outFileName = "out//" + fname + "_toGray.bmp";
+                    break;
+                case 2:
+                    outFileName = "out//" + fname + "_sum.bmp";
+                    break;
+                case 3:
+                    outFileName = "out//" + fname + "_sub.bmp";
+                    break;
+                case 4:
+                    outFileName = "out//" + fname + "_Mul.bmp";
+                    break;
+                case 5:
+                    outFileName = "out//" + fname + "_Div.bmp";
+                    break;
+                default:
+                    outFileName = "out//" + fname + "_none.bmp";
+                    break;
+            }
 
 
             this.fs = new FileStream(outFileName, FileMode.OpenOrCreate);
@@ -175,6 +200,71 @@ namespace bmpProcess
                 fs.Write(this.colorTable, 0, (int)(this.fileHader.bfOffBits - 54));
             }
             fs.Write(this.pixelData, 0, (int)this.infoHader.length);
+        }
+
+        //mode 1,2,3,4分别表示加减乘除
+        public static bool norOperator(process inPic1, process inPic2, out process outPic , int mode)
+        {
+            //大小不一致无法加减
+            if (inPic1.infoHader.l_width != inPic2.infoHader.l_width && inPic1.infoHader.biHeight != inPic2.infoHader.biHeight)
+            {
+                outPic = new process();
+                return false;
+            }
+            outPic = (process)inPic1.MemberwiseClone();
+            if (outPic.fileHader.bfOffBits == 54)
+            {
+                outPic.pixelData = (byte[])inPic1.pixelData.Clone();
+            }
+            else
+            {
+                outPic.pixelData = (byte[])inPic1.pixelData.Clone();
+                outPic.colorTable = (byte[])inPic1.colorTable.Clone();
+            }
+
+            for (int i = 0; i < inPic1.infoHader.length; i++)
+            {
+                int temp = 0;
+                switch (mode)
+                {
+                    case 1:
+                        temp = (inPic1.pixelData[i] + inPic2.pixelData[i]);
+                        break;
+                    case 2:
+                        temp = (inPic1.pixelData[i] - inPic2.pixelData[i]);
+                        break;
+                    case 3:
+                        temp = (inPic1.pixelData[i] * inPic2.pixelData[i]);
+                        break;
+                    case 4:
+                        if (inPic2.pixelData[i] == 0) inPic2.pixelData[i] = 1;
+                        //else 
+                            temp = (inPic1.pixelData[i] / inPic2.pixelData[i]);
+                        break;
+                }
+                        
+                if (temp > 255)
+                    outPic.pixelData[i] = (byte)255;
+                else if (temp < 0)
+                    outPic.pixelData[i] = (byte)0;
+                else
+                    outPic.pixelData[i] = (byte)temp;
+            }
+            outPic.toFileStream(inPic1.fs.Name,mode+1);
+             
+            return true;
+        }
+        
+        //mode 1,2分别表示与、或运算
+        public static bool logicOperator(process inPic1, process inPic2, out process outPic, int mode)
+        {
+            outPic = new process();
+            //对每一个字节进行二进制与或运算，不用转化为二值图像
+
+
+
+
+            return false;
         }
     }
 }
