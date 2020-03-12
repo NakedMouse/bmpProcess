@@ -149,44 +149,49 @@ namespace bmpProcess
 
         /*第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除*/
         //第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除
-        public void toFileStream(string filename , int mode)
+        public void toFileStream(string filename ,string filename2 , int mode)
         {
             int lastIndex = filename.LastIndexOf('.');
             int preIndex = filename.LastIndexOf('\\');
             string fname = filename.Substring(preIndex+1, lastIndex - preIndex-1);
+
+            int lastIndex1 = filename2.LastIndexOf('.');
+            int preIndex1 = filename2.LastIndexOf('\\');
+            string fname1 = filename2.Substring(preIndex1 + 1, lastIndex1 - preIndex1 - 1);
             string outFileName;
+
             switch (mode)
             {
+                //case 1:
+                //    outFileName = "out//" + fname + "_toGray.bmp";
+                //    break;
                 case 1:
-                    outFileName = "out//" + fname + "_toGray.bmp";
+                    outFileName = "out//(" + fname +"_sum_" + fname1+").bmp";
                     break;
                 case 2:
-                    outFileName = "out//" + fname + "_sum.bmp";
+                    outFileName = "out//(" + fname + "_sub_" + fname1 + ").bmp";
                     break;
                 case 3:
-                    outFileName = "out//" + fname + "_sub.bmp";
+                    outFileName = "out//(" + fname + "_Mul_" + fname1 + ").bmp";
                     break;
                 case 4:
-                    outFileName = "out//" + fname + "_Mul.bmp";
+                    outFileName = "out//(" + fname + "_Div_" + fname1 + ").bmp";
                     break;
                 case 5:
-                    outFileName = "out//" + fname + "_Div.bmp";
+                    outFileName = "out//(" + fname + "_And_" + fname1 + ").bmp";
                     break;
                 case 6:
-                    outFileName = "out//" + fname + "_And.bmp";
+                    outFileName = "out//(" + fname + "_or_" + fname1 + ").bmp";
                     break;
-                case 7:
-                    outFileName = "out//" + fname + "_Or.bmp";
-                    break;
-                case 8 :
-                    outFileName = "out//" + fname + "_Not.bmp";
-                    break;
-                case 9:
-                    outFileName = "out//" + fname + "_Move.bmp";
-                    break;
-                case 10:
-                    outFileName = "out//" + fname + "_Mirror.bmp";
-                    break;
+                //case 8 :
+                //    outFileName = "out//" + fname + "_Not.bmp";
+                //    break;
+                //case 9:
+                //    outFileName = "out//" + fname + "_Move.bmp";
+                //    break;
+                //case 13:
+                //    outFileName = "out//" + fname + "_Mirror.bmp";
+                //    break;
                 default:
                     outFileName = "out//" + fname + "_none.bmp";
                     break;
@@ -215,6 +220,66 @@ namespace bmpProcess
             Marshal.StructureToPtr(this.infoHader,infoPtr,false);
             Byte[] infoBuff = new Byte[40];
             Marshal.Copy(infoPtr,infoBuff,0,40);
+            Marshal.FreeHGlobal(infoPtr);
+
+            fs.Write(fileBuff, 0, 14);
+            fs.Write(infoBuff, 0, 40);
+            if (this.fileHader.bfOffBits != 54)
+            {
+                fs.Write(this.colorTable, 0, (int)(this.fileHader.bfOffBits - 54));
+            }
+            fs.Write(this.pixelData, 0, (int)this.infoHader.length);
+        }
+
+        public void toFileStream(string filename, int mode)
+        {
+            int lastIndex = filename.LastIndexOf('.');
+            int preIndex = filename.LastIndexOf('\\');
+            string fname = filename.Substring(preIndex + 1, lastIndex - preIndex - 1);
+            string outFileName;
+
+            switch (mode)
+            {
+                case 1:
+                    outFileName = "out//" + fname + "_toGray.bmp";
+                    break;
+                case 2:
+                    outFileName = "out//" + fname + "_Not.bmp";
+                    break;
+                case 3:
+                    outFileName = "out//" + fname + "_Move.bmp";
+                    break;
+                case 7:
+                    outFileName = "out//" + fname + "_Mirror.bmp";
+                    break;
+                default:
+                    outFileName = "out//" + fname + "_none.bmp";
+                    break;
+            }
+
+            try
+            {
+                this.fs = new FileStream(outFileName, FileMode.OpenOrCreate);
+            }
+            catch (Exception e1)
+            {
+                int index = 0;
+                index = outFileName.LastIndexOf('_');
+                outFileName.Insert(index, tag.ToString());
+                this.fs = new FileStream(outFileName, FileMode.OpenOrCreate);
+                tag++;
+            }
+            //结构体到字节数组
+            IntPtr filePtr = Marshal.AllocHGlobal(14);
+            Marshal.StructureToPtr(this.fileHader, filePtr, false);
+            Byte[] fileBuff = new Byte[14];
+            Marshal.Copy(filePtr, fileBuff, 0, 14);
+            Marshal.FreeHGlobal(filePtr);
+
+            IntPtr infoPtr = Marshal.AllocHGlobal(52);
+            Marshal.StructureToPtr(this.infoHader, infoPtr, false);
+            Byte[] infoBuff = new Byte[40];
+            Marshal.Copy(infoPtr, infoBuff, 0, 40);
             Marshal.FreeHGlobal(infoPtr);
 
             fs.Write(fileBuff, 0, 14);
@@ -274,7 +339,7 @@ namespace bmpProcess
                 else
                     outPic.pixelData[i] = (byte)temp;
             }
-            outPic.toFileStream(inPic1.fs.Name,mode+1);
+            outPic.toFileStream(inPic1.fs.Name,inPic2.fs.Name,mode);
              
             return true;
         }
@@ -307,7 +372,7 @@ namespace bmpProcess
                 }
                 outPic.pixelData[i] = temp;
             }
-            outPic.toFileStream(inPic1.fs.Name, mode + 5);
+            outPic.toFileStream(inPic1.fs.Name, inPic2.fs.Name,mode + 4);
 
             return true ;
         }
@@ -325,7 +390,7 @@ namespace bmpProcess
                 outPic.pixelData[i] = temp;
             }
 
-            outPic.toFileStream(inPic1.fs.Name, 8);
+            outPic.toFileStream(inPic1.fs.Name, 2);
             return true;
         }
         
@@ -352,7 +417,7 @@ namespace bmpProcess
                 }
             }
 
-            outPic.toFileStream(inPic.fs.Name, 9);
+            outPic.toFileStream(inPic.fs.Name, 3);
             return true;
         }
 
@@ -366,13 +431,21 @@ namespace bmpProcess
             int fixNum = (int)(lw - inPic.infoHader.biWidth * inPic.infoHader.channels);
             for (int h = 0, i = 0; h < inPic.infoHader.biHeight; h++)
             {
-                for (i = 0; i < lw - fixNum; i++)
+                for (i = 0; i < lw - fixNum; )
                 {
-                    outPic.pixelData[(h + 1) * lw - i - fixNum-1] = inPic.pixelData[h * lw + i];
+                    //outPic.pixelData[(h + 1) * lw - i - fixNum - 1] = inPic.pixelData[h * lw + i ];
+                    byte R = inPic.pixelData[h * lw + i];
+                    byte G = inPic.pixelData[h * lw + i + 1];
+                    byte B = inPic.pixelData[h * lw + i + 2];
+                    outPic.pixelData[(h + 1) * lw - i - fixNum - 1] = B;
+                    outPic.pixelData[(h + 1) * lw - i - fixNum - 2] = G;
+                    outPic.pixelData[(h + 1) * lw - i - fixNum - 3] = R;
+
+                    i += 3;
                 }
 
             }
-            outPic.toFileStream(inPic.fs.Name, 10);
+            outPic.toFileStream(inPic.fs.Name, 7);
             return true;
         }
     }
