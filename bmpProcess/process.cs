@@ -183,15 +183,6 @@ namespace bmpProcess
                 case 6:
                     outFileName = "out//(" + fname + "_or_" + fname1 + ").bmp";
                     break;
-                //case 8 :
-                //    outFileName = "out//" + fname + "_Not.bmp";
-                //    break;
-                //case 9:
-                //    outFileName = "out//" + fname + "_Move.bmp";
-                //    break;
-                //case 13:
-                //    outFileName = "out//" + fname + "_Mirror.bmp";
-                //    break;
                 default:
                     outFileName = "out//" + fname + "_none.bmp";
                     break;
@@ -300,8 +291,8 @@ namespace bmpProcess
             }
             outPic.pixelData = (byte[])inPic.pixelData.Clone();
         }
-        //mode 1,2,3,4分别表示加减乘除
-        public static bool norOperator(process inPic1, process inPic2, out process outPic , int mode)
+        //双目运算 mode 1,2,3,4分别表示加减乘除 , 5,6表示逻辑与、或运算
+        public static bool doubOperator(process inPic1, process inPic2, out process outPic , int mode)
         {
             //大小不一致无法加减
             if (inPic1.infoHader.l_width != inPic2.infoHader.l_width && inPic1.infoHader.biHeight != inPic2.infoHader.biHeight)
@@ -327,8 +318,15 @@ namespace bmpProcess
                         break;
                     case 4:
                         if (inPic2.pixelData[i] == 0) inPic2.pixelData[i] = 1;
-                        //else 
-                            temp = (inPic1.pixelData[i] / inPic2.pixelData[i]);
+                        temp = (inPic1.pixelData[i] / inPic2.pixelData[i]);
+                        break;
+                    case 5:
+                        temp = (byte)(inPic1.pixelData[i] & inPic2.pixelData[i]);
+                        break;
+                    case 6:
+                        temp = (byte)(inPic1.pixelData[i] | inPic2.pixelData[i]);
+                        break;
+                    default:
                         break;
                 }
                         
@@ -342,39 +340,6 @@ namespace bmpProcess
             outPic.toFileStream(inPic1.fs.Name,inPic2.fs.Name,mode);
              
             return true;
-        }
-        
-        //mode 1,2分别表示与、或运算
-        public static bool logicOperator(process inPic1, process inPic2, out process outPic, int mode)
-        {
-            outPic = new process();
-            //对每一个字节进行二进制与或运算，不用转化为二值图像
-            if (inPic1.infoHader.biWidth != inPic2.infoHader.biWidth && inPic1.infoHader.biHeight != inPic2.infoHader.biHeight)
-            {
-                return false;
-            }
-            process.copy(inPic1, out outPic);
-
-            for (int i = 0; i < inPic1.infoHader.length; i++)
-            {
-                byte temp = 0;
-                switch (mode)
-                {
-                    case 1:
-                        temp = (byte) (inPic1.pixelData[i] & inPic2.pixelData[i]);
-                        break;
-                    case 2:
-                        temp = (byte)(inPic1.pixelData[i] | inPic2.pixelData[i]);
-                        break;
-                    default:
-                        break;
-
-                }
-                outPic.pixelData[i] = temp;
-            }
-            outPic.toFileStream(inPic1.fs.Name, inPic2.fs.Name,mode + 4);
-
-            return true ;
         }
 
         public static bool notOperator(process inPic1,out process outPic)
@@ -448,5 +413,7 @@ namespace bmpProcess
             outPic.toFileStream(inPic.fs.Name, 7);
             return true;
         }
+    
+
     }
 }

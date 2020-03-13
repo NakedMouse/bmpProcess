@@ -34,48 +34,6 @@ namespace bmpProcess
             }
         } 
 
-        public void showLeft(string filePath)
-        {
-        
-        }
-
-        public void showRight(string filePath)
-        {
-            if (filePath != string.Empty)
-            {
-                try
-                {
-                    this.outPicBox.Load(pathname);
-                    isRshow = true;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
-            else {
-                MessageBox.Show("No Picture.");
-            }
-        }
-
-        //private void saveButt_Click(object sender, EventArgs e)
-        //{
-        //    try{
-        //        if (pathname != string.Empty)
-        //        {
-        //            SaveFileDialog save = new SaveFileDialog();
-        //            save.ShowDialog();
-        //            InPicBox1.Image.Save(save.FileName);
-        //            MessageBox.Show("Save success!");
-        //        }
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        MessageBox.Show("Input a file name as a bmp file\n"+ex);
-        //    }
-        //}
-
-
         private void Form1_Load(object sender, EventArgs e)
         {
             inPic1 = new process();
@@ -230,16 +188,7 @@ namespace bmpProcess
             {
                 if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
                 {
-                    bool tag = false;
-                    if (mode < 5)
-                    {
-                        tag = (process.norOperator(inPic1, inPic2, out outPic, mode));
-                    }
-                    else
-                    {
-                        tag = (process.logicOperator(inPic1, inPic2, out outPic, mode - 4));
-                    }
-                    if (tag)
+                    if (process.doubOperator(inPic1, inPic2, out outPic, mode))
                     {
                         this.outPicBox.Image = Image.FromStream(outPic.fs);
                         isRshow = true;
