@@ -156,11 +156,7 @@ namespace bmpProcess
                     }
                     if (fs != null)
                     {
-                        //inPic1 = new process();
                         inPic1.getData(fs);
-                        //ulong a = pic.fileHader.bfSize;
-                        //string str = "type:" + (inPic1.fileHader.bfType - 0x0).ToString() + "  offBits:" + (inPic1.fileHader.bfOffBits - 0).ToString();
-                        //MessageBox.Show(str);
                     }
                     fs.Close();
                 }
@@ -173,127 +169,32 @@ namespace bmpProcess
 
         private void sumButt_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
-                {
-                    if (process.norOperator(inPic1, inPic2, out outPic,1))
-                    {
-                        this.outPicBox.Image = Image.FromStream(outPic.fs);
-                        isRshow = true;
-                        outPic.fs.Close();
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Please open two picture with same size!\n");
-            }
-
+            doubMethod(1);
         }
 
         private void subButt_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
-                {
-                    if (process.norOperator(inPic1, inPic2, out outPic,2))
-                    {
-                        this.outPicBox.Image = Image.FromStream(outPic.fs);
-                        isRshow = true;
-                        outPic.fs.Close();
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Please open two BMP files have same size!\n");
-            }
+            doubMethod(2);
         }
 
         private void mulButt_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
-                {
-                    if (process.norOperator(inPic1, inPic2, out outPic,3))
-                    {
-                        this.outPicBox.Image = Image.FromStream(outPic.fs);
-                        isRshow = true;
-                        outPic.fs.Close();
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Please open two BMP files have same size!\n");
-            }
+            doubMethod(3);
         }
 
         private void divButt_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
-                {
-                    if (process.norOperator(inPic1, inPic2, out outPic,4))
-                    {
-                        this.outPicBox.Image = Image.FromStream(outPic.fs);
-                        isRshow = true;
-                        outPic.fs.Close();
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Please open two BMP files have same size!\n");
-            }
+            doubMethod(4);
         }
 
         private void andButt_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
-                {
-                    if (process.logicOperator(inPic1, inPic2, out outPic, 1))
-                    {
-                        this.outPicBox.Image = Image.FromStream(outPic.fs);
-                        isRshow = true;
-                        outPic.fs.Close();
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }            
+            doubMethod(5);            
         }
 
         private void orButt_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
-                {
-                    if (process.logicOperator(inPic1, inPic2, out outPic, 2))
-                    {
-                        this.outPicBox.Image = Image.FromStream(outPic.fs);
-                        isRshow = true;
-                        outPic.fs.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }         
+            doubMethod(6);       
         }
 
         private void noButt_Click(object sender, EventArgs e)
@@ -314,7 +215,6 @@ namespace bmpProcess
             {
                 MessageBox.Show(ex.Message);
             }   
-
         }
 
         private void openGeo_Click(object sender, EventArgs e)
@@ -324,6 +224,33 @@ namespace bmpProcess
             geo.Show();
         }
 
-
+        private void doubMethod(int mode)
+        {
+            try
+            {
+                if (inPic1.fileHader.bfType == 19778 && inPic2.fileHader.bfType == 19778)
+                {
+                    bool tag = false;
+                    if (mode < 5)
+                    {
+                        tag = (process.norOperator(inPic1, inPic2, out outPic, mode));
+                    }
+                    else
+                    {
+                        tag = (process.logicOperator(inPic1, inPic2, out outPic, mode - 4));
+                    }
+                    if (tag)
+                    {
+                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        isRshow = true;
+                        outPic.fs.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please open two picture with same size!\n");
+            }
+        }
     }
 }
