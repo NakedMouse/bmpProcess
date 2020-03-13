@@ -100,7 +100,6 @@ namespace bmpProcess
                 outPic = new process();
                 return false;
             }
-            //picR.fileHader = this.fileHader;
             outPic = (process)this.MemberwiseClone();
             if (outPic.fileHader.bfOffBits == 54)         //将原图片复制到新图片中 
             {
@@ -147,17 +146,19 @@ namespace bmpProcess
             return true;
         }
 
+        private string getName(string inName)
+        {
+            int lastIndex = inName.LastIndexOf('.');
+            int preIndex = inName.LastIndexOf('\\');
+            return inName.Substring(preIndex + 1, lastIndex - preIndex - 1);
+        }
+
         /*第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除*/
         //第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除
-        public void toFileStream(string filename ,string filename2 , int mode)
+        private void toFileStream(string filename, string filename2, int mode)
         {
-            int lastIndex = filename.LastIndexOf('.');
-            int preIndex = filename.LastIndexOf('\\');
-            string fname = filename.Substring(preIndex+1, lastIndex - preIndex-1);
-
-            int lastIndex1 = filename2.LastIndexOf('.');
-            int preIndex1 = filename2.LastIndexOf('\\');
-            string fname1 = filename2.Substring(preIndex1 + 1, lastIndex1 - preIndex1 - 1);
+            string fname = getName(filename);
+            string fname1 = getName(filename2);
             string outFileName;
 
             switch (mode)
@@ -222,11 +223,9 @@ namespace bmpProcess
             fs.Write(this.pixelData, 0, (int)this.infoHader.length);
         }
 
-        public void toFileStream(string filename, int mode)
+        private void toFileStream(string filename, int mode)
         {
-            int lastIndex = filename.LastIndexOf('.');
-            int preIndex = filename.LastIndexOf('\\');
-            string fname = filename.Substring(preIndex + 1, lastIndex - preIndex - 1);
+            string fname = getName(filename);
             string outFileName;
 
             switch (mode)
@@ -242,6 +241,9 @@ namespace bmpProcess
                     break;
                 case 7:
                     outFileName = "out//" + fname + "_Mirror.bmp";
+                    break;
+                case 8:
+                    outFileName = "out//" + fname + "_Narrow.bmp";
                     break;
                 default:
                     outFileName = "out//" + fname + "_none.bmp";
@@ -291,6 +293,7 @@ namespace bmpProcess
             }
             outPic.pixelData = (byte[])inPic.pixelData.Clone();
         }
+       
         //双目运算 mode 1,2,3,4分别表示加减乘除 , 5,6表示逻辑与、或运算
         public static bool doubOperator(process inPic1, process inPic2, out process outPic , int mode)
         {
@@ -372,13 +375,13 @@ namespace bmpProcess
 
             int xMovePix = (int)(inPic.infoHader.biWidth / 10);
             int yMovePix = (int)(inPic.infoHader.biHeight / 10);
-            
+            int lw = (int)inPic.infoHader.l_width;
+
             for (int h = 0, i = 0; h < inPic.infoHader.biHeight - yMovePix; h++)
             {
-                for (i = 0; i < inPic.infoHader.l_width - xMovePix*inPic.infoHader.channels; i++)
+                for (i = 0; i < lw - xMovePix * inPic.infoHader.channels; i++)
                 {
-                    outPic.pixelData[(h + yMovePix) * inPic.infoHader.l_width + (xMovePix) * inPic.infoHader.channels + i] =
-                        inPic.pixelData[h * inPic.infoHader.l_width + i];
+                    outPic.pixelData[(h + yMovePix) * lw + (xMovePix) * inPic.infoHader.channels + i] = inPic.pixelData[h * lw + i];
                 }
             }
 
@@ -413,7 +416,54 @@ namespace bmpProcess
             outPic.toFileStream(inPic.fs.Name, 7);
             return true;
         }
-    
+
+        public static bool narrow(process inPic, out process outPic)
+        {
+            //xy统一缩小50%
+            int newWidth = (int)(inPic.infoHader.biWidth / 2);
+            int newheight = (int)(inPic.infoHader.biHeight / 2);
+            int newLw = (int)(newWidth * inPic.infoHader.channels + 3) / 4 * 4;
+
+            outPic = (process)inPic.MemberwiseClone();
+            if (outPic.fileHader.bfOffBits != 54)
+            {
+                outPic.colorTable = (byte[])inPic.colorTable.Clone();
+            }
+            outPic.pixelData = new byte[newheight * newLw];
+
+            int fixNum = (int)(newLw - newWidth*inPic.infoHader.channels);
+            for (int h = 0, w = 0, i = 0; h < newheight; h++)
+            {
+                for (w = 0,i=0; w < newWidth && (2*h)<inPic.infoHader.biHeight; w++)
+                {
+                    int oIndex = (int)(h * newLw + w * inPic.infoHader.channels);
+                    int iIndex = (int)(2 * h * inPic.infoHader.l_width + 2 * w * inPic.infoHader.channels);
+
+                    int R = inPic.pixelData[iIndex];
+                    int G = inPic.pixelData[iIndex + 1];
+                    int B = inPic.pixelData[iIndex + 2];
+                    outPic.pixelData[oIndex] = (byte)R;
+                    outPic.pixelData[oIndex + 1] = (byte)G;
+                    outPic.pixelData[oIndex + 2] = (byte)B;
+                }
+            }
+
+            //重构文件头
+            outPic.infoHader.biWidth = (uint)newWidth;
+            outPic.infoHader.biHeight = (uint)newheight;
+            outPic.fileHader.bfSize = (uint)(54 + newLw * newheight * outPic.infoHader.channels);
+            outPic.infoHader.biSizeImage = (uint)(newLw * newheight * outPic.infoHader.channels);
+            outPic.infoHader.length = (uint)(newLw * newheight);
+
+            outPic.toFileStream(inPic.fs.Name, 8);
+
+            return true;
+        }
+
+        //public static bool enlarge(process inPic, out process outPic)
+        //{
+        //    return true;
+        //}
 
     }
 }

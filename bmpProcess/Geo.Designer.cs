@@ -33,8 +33,8 @@
             this.inPicBox = new System.Windows.Forms.PictureBox();
             this.moveButt = new System.Windows.Forms.Button();
             this.spinButt = new System.Windows.Forms.Button();
-            this.bigButt = new System.Windows.Forms.Button();
-            this.smallButt = new System.Windows.Forms.Button();
+            this.enlargeButt = new System.Windows.Forms.Button();
+            this.narrowButt = new System.Windows.Forms.Button();
             this.mirrorButt = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).BeginInit();
@@ -89,26 +89,28 @@
             this.spinButt.TabIndex = 9;
             this.spinButt.Text = "旋转";
             this.spinButt.UseVisualStyleBackColor = true;
+            this.spinButt.Click += new System.EventHandler(this.spinButt_Click);
             // 
-            // bigButt
+            // enlargeButt
             // 
-            this.bigButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.bigButt.Location = new System.Drawing.Point(486, 211);
-            this.bigButt.Name = "bigButt";
-            this.bigButt.Size = new System.Drawing.Size(100, 30);
-            this.bigButt.TabIndex = 10;
-            this.bigButt.Text = "放大";
-            this.bigButt.UseVisualStyleBackColor = true;
+            this.enlargeButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.enlargeButt.Location = new System.Drawing.Point(486, 211);
+            this.enlargeButt.Name = "enlargeButt";
+            this.enlargeButt.Size = new System.Drawing.Size(100, 30);
+            this.enlargeButt.TabIndex = 10;
+            this.enlargeButt.Text = "放大";
+            this.enlargeButt.UseVisualStyleBackColor = true;
             // 
-            // smallButt
+            // narrowButt
             // 
-            this.smallButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.smallButt.Location = new System.Drawing.Point(486, 257);
-            this.smallButt.Name = "smallButt";
-            this.smallButt.Size = new System.Drawing.Size(100, 30);
-            this.smallButt.TabIndex = 11;
-            this.smallButt.Text = "缩小";
-            this.smallButt.UseVisualStyleBackColor = true;
+            this.narrowButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.narrowButt.Location = new System.Drawing.Point(486, 257);
+            this.narrowButt.Name = "narrowButt";
+            this.narrowButt.Size = new System.Drawing.Size(100, 30);
+            this.narrowButt.TabIndex = 11;
+            this.narrowButt.Text = "缩小";
+            this.narrowButt.UseVisualStyleBackColor = true;
+            this.narrowButt.Click += new System.EventHandler(this.narrowButt_Click);
             // 
             // mirrorButt
             // 
@@ -127,8 +129,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1066, 614);
             this.Controls.Add(this.mirrorButt);
-            this.Controls.Add(this.smallButt);
-            this.Controls.Add(this.bigButt);
+            this.Controls.Add(this.narrowButt);
+            this.Controls.Add(this.enlargeButt);
             this.Controls.Add(this.spinButt);
             this.Controls.Add(this.moveButt);
             this.Controls.Add(this.inPicBox);
@@ -150,8 +152,8 @@
         private System.Windows.Forms.PictureBox inPicBox;
         private System.Windows.Forms.Button moveButt;
         private System.Windows.Forms.Button spinButt;
-        private System.Windows.Forms.Button bigButt;
-        private System.Windows.Forms.Button smallButt;
+        private System.Windows.Forms.Button enlargeButt;
+        private System.Windows.Forms.Button narrowButt;
         private System.Windows.Forms.Button mirrorButt;
     }
 }

@@ -36,7 +36,6 @@ namespace bmpProcess
                     pathname = file.FileName;
                     fs = new FileStream(pathname, FileMode.Open, FileAccess.ReadWrite);
                     this.inPicBox.Image = System.Drawing.Image.FromStream(fs);
-                    //this.picBoxL.Load(pathname);
                     if (isRshow)
                     {
                         this.outPicBox.Image = null;
@@ -44,11 +43,7 @@ namespace bmpProcess
                     }
                     if (fs != null)
                     {
-                        //inPic1 = new process();
                         inPic.getData(fs);
-                        //ulong a = pic.fileHader.bfSize;
-                        //string str = "type:" + (inPic1.fileHader.bfType - 0x0).ToString() + "  offBits:" + (inPic1.fileHader.bfOffBits - 0).ToString();
-                        //MessageBox.Show(str);
                     }
                     fs.Close();
                 }
@@ -67,31 +62,34 @@ namespace bmpProcess
 
         private void moveButt_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (inPic.fileHader.bfType == 19778)
-                {
-                    if (process.move(inPic, out outPic))
-                    {
-                        this.outPicBox.Image = Image.FromStream(outPic.fs);
-                        isRshow = true;
-                        outPic.fs.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            singleMethod(1);
         }
 
         private void mirrorButt_Click(object sender, EventArgs e)
+        {
+            singleMethod(5);
+        }
+
+        private void singleMethod(int mode)
         {
             try
             {
                 if (inPic.fileHader.bfType == 19778)
                 {
-                    if (process.mirror(inPic, out outPic))
+                    bool tag = false;
+                    switch (mode)
+                    {
+                        case 1:
+                            tag = process.move(inPic, out outPic);
+                            break;
+                        case 4:
+                            tag = process.narrow(inPic, out outPic);
+                            break;
+                        case 5:
+                            tag = process.mirror(inPic, out outPic);
+                            break;
+                    }
+                    if (tag)
                     {
                         this.outPicBox.Image = Image.FromStream(outPic.fs);
                         isRshow = true;
@@ -101,9 +99,21 @@ namespace bmpProcess
             }
             catch (Exception ex)
             {
+                outPic.fs.Close();
                 MessageBox.Show(ex.Message);
             }
         }
+
+        private void spinButt_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void narrowButt_Click(object sender, EventArgs e)
+        {
+            singleMethod(4);
+        }
+
 
     }
 }

@@ -171,6 +171,7 @@ namespace bmpProcess
             }
             catch (Exception ex)
             {
+                outPic.fs.Close();
                 MessageBox.Show(ex.Message);
             }   
         }
@@ -198,6 +199,7 @@ namespace bmpProcess
             }
             catch (Exception ex)
             {
+                outPic.fs.Close();
                 MessageBox.Show("Please open two picture with same size!\n");
             }
         }
