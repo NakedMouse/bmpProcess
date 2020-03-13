@@ -100,6 +100,7 @@
             this.enlargeButt.TabIndex = 10;
             this.enlargeButt.Text = "放大";
             this.enlargeButt.UseVisualStyleBackColor = true;
+            this.enlargeButt.Click += new System.EventHandler(this.enlargeButt_Click);
             // 
             // narrowButt
             // 

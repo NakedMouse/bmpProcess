@@ -239,11 +239,17 @@ namespace bmpProcess
                 case 3:
                     outFileName = "out//" + fname + "_Move.bmp";
                     break;
+                case 4:
+                    outFileName = "out//" + fname + "_Spin.bmp";
+                    break;
+                case 5:
+                    outFileName = "out//" + fname + "_Enlarge.bmp";
+                    break;
+                case 6:
+                    outFileName = "out//" + fname + "_Narrow.bmp";
+                    break;
                 case 7:
                     outFileName = "out//" + fname + "_Mirror.bmp";
-                    break;
-                case 8:
-                    outFileName = "out//" + fname + "_Narrow.bmp";
                     break;
                 default:
                     outFileName = "out//" + fname + "_none.bmp";
@@ -362,7 +368,7 @@ namespace bmpProcess
             return true;
         }
         
-        //时间关系仅做固定尺寸平移，其他方向的平移后续补上
+        //时间关系仅做固定尺寸平移
         public static bool move(process inPic , out process outPic)
         {
             outPic = new process();
@@ -389,7 +395,7 @@ namespace bmpProcess
             return true;
         }
 
-        //时间关系仅完成水平镜像，垂直镜像后续补上
+        //时间关系仅完成水平镜像
         public static bool mirror(process inPic, out process outPic)
         {
             outPic = new process();
@@ -432,9 +438,9 @@ namespace bmpProcess
             outPic.pixelData = new byte[newheight * newLw];
 
             int fixNum = (int)(newLw - newWidth*inPic.infoHader.channels);
-            for (int h = 0, w = 0, i = 0; h < newheight; h++)
+            for (int h = 0, w = 0; h < newheight; h++)
             {
-                for (w = 0,i=0; w < newWidth && (2*h)<inPic.infoHader.biHeight; w++)
+                for (w = 0; w < newWidth && (2*h)<inPic.infoHader.biHeight; w++)
                 {
                     int oIndex = (int)(h * newLw + w * inPic.infoHader.channels);
                     int iIndex = (int)(2 * h * inPic.infoHader.l_width + 2 * w * inPic.infoHader.channels);
@@ -455,15 +461,79 @@ namespace bmpProcess
             outPic.infoHader.biSizeImage = (uint)(newLw * newheight * outPic.infoHader.channels);
             outPic.infoHader.length = (uint)(newLw * newheight);
 
-            outPic.toFileStream(inPic.fs.Name, 8);
+            outPic.toFileStream(inPic.fs.Name, 6);
 
             return true;
         }
 
-        //public static bool enlarge(process inPic, out process outPic)
-        //{
-        //    return true;
-        //}
+        //使用后向映射（双线性好像很好玩，有时间可以做一下）最近邻的线性插值锯齿现象交严重
+        public static bool enlarge(process inPic, out process outPic)
+        {
+            double enlSize = 3.0;           //放大倍数，时间紧迫未完善做到根据输入确定放大倍数
+            int lw = (int)inPic.infoHader.l_width;
+            int ch = (int)inPic.infoHader.channels;
+            int newWidth = (int)Math.Ceiling(inPic.infoHader.biWidth * enlSize);    //向上取整
+            int newHeight = (int)Math.Ceiling(inPic.infoHader.biHeight * enlSize);
+            int newLw = (int)((newWidth * ch +3)/4*4);
+           
+            outPic = (process)inPic.MemberwiseClone();
+            if (outPic.fileHader.bfOffBits != 54)
+            {
+                outPic.colorTable = (byte[])inPic.colorTable.Clone();
+            }
+            outPic.pixelData = new byte[newHeight * newLw];         //创建新的数据区
+         
+            for (int h = 0, w = 0; h < newHeight; h++)
+            {
+                double hTemp = ((double)h / (double)newHeight)*(double)inPic.infoHader.biHeight;
+                int hDown = (int)Math.Ceiling(hTemp);               //同一行的上下近邻是一致的
+                int hUp = (int)hTemp;
+                if (hDown > (inPic.infoHader.biHeight - 1))
+                {
+                    hDown = (int)inPic.infoHader.biHeight - 1;
+                }
+
+                for (w = 0; w < newWidth; w++)
+                {
+                    double wTemp = ((double)w / (double)newWidth)*(double)inPic.infoHader.biWidth;
+                    int wLeft = (int)wTemp;
+                    int wRight = (int)Math.Ceiling(wTemp);
+                    if (wRight > (inPic.infoHader.biWidth - 1))
+                    {
+                        wRight = (int)inPic.infoHader.biWidth - 1;
+                    }
+
+                    int oIndex = (int)(h*newLw + w*ch);
+                    //新的像素为四个角像素的平均
+                    int R = (inPic.pixelData[hUp * lw + wLeft * ch]             
+                            + inPic.pixelData[hUp * lw + wRight * ch] 
+                            + inPic.pixelData[hDown * lw + wLeft * ch] 
+                            + inPic.pixelData[hDown * lw + wRight * ch]) / 4;
+                    int G = (inPic.pixelData[hUp * lw + wLeft * ch +1]
+                            + inPic.pixelData[hUp * lw + wRight * ch +1]
+                            + inPic.pixelData[hDown * lw + wLeft * ch +1]
+                            + inPic.pixelData[hDown * lw + wRight * ch +1]) / 4;
+                    int B = (inPic.pixelData[hUp * lw + wLeft * ch +2]
+                            + inPic.pixelData[hUp * lw + wRight * ch +2]
+                            + inPic.pixelData[hDown * lw + wLeft * ch +2]
+                            + inPic.pixelData[hDown * lw + wRight * ch +2]) / 4;
+
+                    outPic.pixelData[oIndex] = (byte)R;
+                    outPic.pixelData[oIndex +1] = (byte)G;
+                    outPic.pixelData[oIndex +2] = (byte)B;
+                }
+            }
+
+            outPic.infoHader.biWidth = (uint)newWidth;
+            outPic.infoHader.biHeight = (uint)newHeight;
+            outPic.fileHader.bfSize = (uint)(54 + newLw * newHeight * ch);
+            outPic.infoHader.biSizeImage = (uint)(newLw * newHeight * ch);
+            outPic.infoHader.length = (uint)(newLw * newHeight);
+            outPic.toFileStream(inPic.fs.Name, 5);
+
+            return true;
+        }
+
 
     }
 }

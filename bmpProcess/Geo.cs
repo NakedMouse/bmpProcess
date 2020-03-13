@@ -82,6 +82,9 @@ namespace bmpProcess
                         case 1:
                             tag = process.move(inPic, out outPic);
                             break;
+                        case 3:
+                            tag = process.enlarge(inPic, out outPic);
+                            break;
                         case 4:
                             tag = process.narrow(inPic, out outPic);
                             break;
@@ -109,10 +112,16 @@ namespace bmpProcess
 
         }
 
+        private void enlargeButt_Click(object sender, EventArgs e)
+        {
+            singleMethod(3);
+        }
+
         private void narrowButt_Click(object sender, EventArgs e)
         {
             singleMethod(4);
         }
+
 
 
     }
