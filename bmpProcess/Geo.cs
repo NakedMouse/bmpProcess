@@ -60,16 +60,6 @@ namespace bmpProcess
             outPic = new process();
         }
 
-        private void moveButt_Click(object sender, EventArgs e)
-        {
-            singleMethod(1);
-        }
-
-        private void mirrorButt_Click(object sender, EventArgs e)
-        {
-            singleMethod(5);
-        }
-
         private void singleMethod(int mode)
         {
             try
@@ -81,6 +71,9 @@ namespace bmpProcess
                     {
                         case 1:
                             tag = process.move(inPic, out outPic);
+                            break;
+                        case 2:
+                            tag = process.spin(inPic, out outPic);
                             break;
                         case 3:
                             tag = process.enlarge(inPic, out outPic);
@@ -107,9 +100,21 @@ namespace bmpProcess
             }
         }
 
+        private void moveButt_Click(object sender, EventArgs e)
+        {
+            singleMethod(1);
+        }
+
+        private void mirrorButt_Click(object sender, EventArgs e)
+        {
+            singleMethod(5);
+        }
+
+        
+
         private void spinButt_Click(object sender, EventArgs e)
         {
-
+            singleMethod(2);
         }
 
         private void enlargeButt_Click(object sender, EventArgs e)

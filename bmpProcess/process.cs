@@ -469,7 +469,7 @@ namespace bmpProcess
         //使用后向映射（双线性好像很好玩，有时间可以做一下）最近邻的线性插值锯齿现象交严重
         public static bool enlarge(process inPic, out process outPic)
         {
-            double enlSize = 3.0;           //放大倍数，时间紧迫未完善做到根据输入确定放大倍数
+            double enlSize = 2.0;           //放大倍数，时间紧迫未完善做到根据输入确定放大倍数
             int lw = (int)inPic.infoHader.l_width;
             int ch = (int)inPic.infoHader.channels;
             int newWidth = (int)Math.Ceiling(inPic.infoHader.biWidth * enlSize);    //向上取整
@@ -534,6 +534,99 @@ namespace bmpProcess
             return true;
         }
 
+        ////时间关系只顺时针旋转45度
+        public static bool spin(process inPic, out process outPic)
+        {
+            double cos = 0.707;         //旋转角度
+            double sin = 0.707;    
+            
+            outPic = (process)inPic.MemberwiseClone();          //计算新图像的参数
+            int lw = (int)inPic.infoHader.l_width;
+            int ch = (int)inPic.infoHader.channels;
+            int nWidth = (int)Math.Ceiling((int)inPic.infoHader.biWidth * 0.707 + (int)inPic.infoHader.biHeight * 0.707);
+            int nHeight = (int)Math.Ceiling((int)inPic.infoHader.biWidth * 0.707 + (int)inPic.infoHader.biHeight * 0.707);
+            int nLw = (int)((nWidth *ch+3)/4*4);
+
+            int oldXSize = (int)inPic.infoHader.biWidth / 2;        //辅助参数
+            int oldYSize = (int)inPic.infoHader.biHeight / 2;
+            int nXSize = (int)nWidth / 2;
+            int nYSize = (int)nHeight / 2;
+
+
+            if (outPic.fileHader.bfOffBits != 54)
+            {
+                outPic.colorTable = (byte[])inPic.colorTable.Clone();
+            }
+            outPic.pixelData = new byte[nLw * nHeight];         //创建新的像素空间
+
+            //直接将像素转移到新的图像
+            for (int x = 0, y = 0; y < inPic.infoHader.biHeight; y++)
+            {
+                for (x = 0; x < inPic.infoHader.biWidth; x++)
+                {
+                    int R = inPic.pixelData[y * inPic.infoHader.l_width + x * ch];
+                    int G = inPic.pixelData[y * inPic.infoHader.l_width + x * ch +1];
+                    int B = inPic.pixelData[y * inPic.infoHader.l_width + x * ch +2];
+
+                    int nX = (int)(cos * (x - oldXSize) + sin * (y - oldYSize));        //计算新的坐标
+                    int nY = (int)(cos * (y - oldYSize) - sin * (x - oldXSize));
+
+                    nX = nX + nXSize;
+                    nY = nY + nYSize;
+
+                    outPic.pixelData[nY * nLw + nX * ch] = (byte)R;
+                    outPic.pixelData[nY * nLw + nX * ch +1] = (byte)G;
+                    outPic.pixelData[nY * nLw + nX * ch +2] = (byte)B;
+                }
+            }
+
+            //对图像进行双线性插值补全遗漏像素
+            for (int x = 0, y = 0; y < nHeight; y++)
+            {
+                int yUp = y + 1;
+                int yDown = y - 1;
+                if (yDown < 0) yDown = 0;
+                if (yUp > (nHeight - 1)) yUp = nHeight - 1;
+
+                for (x = 0; x < nWidth; x++)
+                {
+                    int xLeft = x - 1;
+                    int xRight = x + 1;
+                    if (xLeft < 0) xLeft = 0;
+                    if (xRight > (nWidth - 1)) xRight = nWidth - 1;
+
+                    int R = outPic.pixelData[y * nLw + x * ch];
+                    int G = outPic.pixelData[y * nLw + x * ch + 1];
+                    int B = outPic.pixelData[y * nLw + x * ch + 2];
+
+                    if (R == 0 && G == 0 && B == 0)
+                    {
+                        R = (int)(outPic.pixelData[y * nLw + xLeft * ch] + outPic.pixelData[y * nLw + xRight * ch]
+                            + outPic.pixelData[yUp * nLw + x * ch] + outPic.pixelData[yDown * nLw + x * ch]) / 4;
+
+                        G = (int)(outPic.pixelData[y * nLw + xLeft * ch + 1] + outPic.pixelData[y * nLw + xRight * ch + 1]
+                            + outPic.pixelData[yUp * nLw + x * ch + 1] + outPic.pixelData[yDown * nLw + x * ch] + 1) / 4;
+
+                        B = (int)(outPic.pixelData[y * nLw + xLeft * ch + 2] + outPic.pixelData[y * nLw + xRight * ch + 2]
+                            + outPic.pixelData[yUp * nLw + x * ch + 2] + outPic.pixelData[yDown * nLw + x * ch + 2]) / 4;
+                    }
+
+                    outPic.pixelData[y * nLw + x * ch] = (byte)R;
+                    outPic.pixelData[y * nLw + x * ch + 1] = (byte)G;
+                    outPic.pixelData[y * nLw + x * ch + 2] = (byte)B;
+                }
+            }
+
+            outPic.infoHader.biWidth = (uint)nWidth;
+            outPic.infoHader.biHeight = (uint)nHeight;
+            outPic.fileHader.bfSize = (uint)(54 + nLw * nHeight * ch);
+            outPic.infoHader.biSizeImage = (uint)(nLw * nHeight * ch);
+            outPic.infoHader.length = (uint)(nLw * nHeight);
+            outPic.toFileStream(inPic.fs.Name, 4);
+
+
+            return true;
+        }
 
     }
 }
