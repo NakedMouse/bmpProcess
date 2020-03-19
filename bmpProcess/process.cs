@@ -204,8 +204,14 @@ namespace bmpProcess
             return inName.Substring(preIndex + 1, lastIndex - preIndex - 1);
         }
 
-        /*第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除*/
-        //第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除
+        
+        /// <summary>
+        /// 第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="filename2"></param>
+        /// <param name="mode"></param>
+        // 第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除
         private void toFileStream(string filename, string filename2, int mode)
         {
             string fname = getName(filename);
@@ -239,39 +245,8 @@ namespace bmpProcess
                     outFileName = "out//" + fname + "_none.bmp";
                     break;
             }
+            writeStream(outFileName);
 
-            try
-            {
-                this.fs = new FileStream(outFileName, FileMode.OpenOrCreate);
-            }
-            catch (Exception e1)
-            {
-                int index = 0;
-                index = outFileName.LastIndexOf('_');
-                outFileName.Insert(index, tag.ToString());
-                this.fs = new FileStream(outFileName, FileMode.OpenOrCreate);
-                tag++;
-            }
-            //结构体到字节数组
-            IntPtr filePtr = Marshal.AllocHGlobal(14);
-            Marshal.StructureToPtr(this.fileHader,filePtr,false);
-            Byte[] fileBuff = new Byte[14];
-            Marshal.Copy(filePtr,fileBuff,0,14);
-            Marshal.FreeHGlobal(filePtr);
-
-            IntPtr infoPtr = Marshal.AllocHGlobal(52);
-            Marshal.StructureToPtr(this.infoHader,infoPtr,false);
-            Byte[] infoBuff = new Byte[40];
-            Marshal.Copy(infoPtr,infoBuff,0,40);
-            Marshal.FreeHGlobal(infoPtr);
-
-            fs.Write(fileBuff, 0, 14);
-            fs.Write(infoBuff, 0, 40);
-            if (this.fileHader.bfOffBits != 54)
-            {
-                fs.Write(this.colorTable, 0, (int)(this.fileHader.bfOffBits - 54));
-            }
-            fs.Write(this.pixelData, 0, (int)this.infoHader.length);
         }
 
         private void toFileStream(string filename, int mode)
@@ -306,9 +281,22 @@ namespace bmpProcess
                     outFileName = "out//" + fname + "_none.bmp";
                     break;
             }
-
+            writeStream(outFileName);
+        }
+       
+        /// <summary>
+        /// 写入文件流
+        /// </summary>
+        /// <param name="outFileName"></param>
+        //写入文件流
+        private void writeStream(string outFileName)
+        {
             try
             {
+                if (!Directory.Exists("out//"))
+                {
+                    Directory.CreateDirectory("out//");
+                }
                 this.fs = new FileStream(outFileName, FileMode.OpenOrCreate);
             }
             catch (Exception e1)
@@ -801,6 +789,7 @@ namespace bmpProcess
         /// </summary>
         /// <param name="inPic"></param>
         /// <returns></returns>
+        // 直方均衡
         public static System.Drawing.Image grayHistrogramAvg(process inPic)
         {
             process outPic = new process();
@@ -825,6 +814,7 @@ namespace bmpProcess
                 }
             }
             double[] pro = new double[256];
+            //灰度变换
             for (int i = 0; i < 256; i++)
             {
                 pro[i] = (double)grayHis[i] / sum;
@@ -871,7 +861,6 @@ namespace bmpProcess
             }
             return ReturnPhoto(outPic);
         }
-
 
     }
 }
