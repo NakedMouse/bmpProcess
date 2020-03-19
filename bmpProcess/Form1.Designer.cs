@@ -46,6 +46,7 @@
             this.orButt = new System.Windows.Forms.Button();
             this.noButt = new System.Windows.Forms.Button();
             this.openGeo = new System.Windows.Forms.Button();
+            this.bitCutButt = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.InPicBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.InPicBox2)).BeginInit();
@@ -96,7 +97,7 @@
             this.closeButt.Name = "closeButt";
             this.closeButt.Size = new System.Drawing.Size(100, 30);
             this.closeButt.TabIndex = 5;
-            this.closeButt.Text = "关闭";
+            this.closeButt.Text = "重置";
             this.closeButt.UseVisualStyleBackColor = true;
             this.closeButt.Click += new System.EventHandler(this.closeButt_Click);
             // 
@@ -219,19 +220,30 @@
             // 
             // openGeo
             // 
-            this.openGeo.Location = new System.Drawing.Point(827, 25);
+            this.openGeo.Location = new System.Drawing.Point(556, 25);
             this.openGeo.Name = "openGeo";
-            this.openGeo.Size = new System.Drawing.Size(100, 30);
+            this.openGeo.Size = new System.Drawing.Size(125, 30);
             this.openGeo.TabIndex = 18;
-            this.openGeo.Text = "几何运算";
+            this.openGeo.Text = "几何/空域运算";
             this.openGeo.UseVisualStyleBackColor = true;
             this.openGeo.Click += new System.EventHandler(this.openGeo_Click);
+            // 
+            // bitCutButt
+            // 
+            this.bitCutButt.Location = new System.Drawing.Point(702, 25);
+            this.bitCutButt.Name = "bitCutButt";
+            this.bitCutButt.Size = new System.Drawing.Size(100, 30);
+            this.bitCutButt.TabIndex = 19;
+            this.bitCutButt.Text = "位面切割";
+            this.bitCutButt.UseVisualStyleBackColor = true;
+            this.bitCutButt.Click += new System.EventHandler(this.bitCutButt_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1087, 612);
+            this.Controls.Add(this.bitCutButt);
             this.Controls.Add(this.openGeo);
             this.Controls.Add(this.noButt);
             this.Controls.Add(this.orButt);
@@ -281,6 +293,7 @@
         private System.Windows.Forms.Button orButt;
         private System.Windows.Forms.Button noButt;
         private System.Windows.Forms.Button openGeo;
+        private System.Windows.Forms.Button bitCutButt;
     }
 }
 

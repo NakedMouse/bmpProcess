@@ -36,8 +36,20 @@
             this.enlargeButt = new System.Windows.Forms.Button();
             this.narrowButt = new System.Windows.Forms.Button();
             this.mirrorButt = new System.Windows.Forms.Button();
+            this.linearExpandButt = new System.Windows.Forms.Button();
+            this.nonlinearExpandButt1 = new System.Windows.Forms.Button();
+            this.histogramAvgButt = new System.Windows.Forms.Button();
+            this.colorButt = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.resetButt = new System.Windows.Forms.Button();
+            this.nonlinearExpandButt2 = new System.Windows.Forms.Button();
+            this.saveButt = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // geoOpenIn
@@ -53,18 +65,18 @@
             // 
             // outPicBox
             // 
-            this.outPicBox.Location = new System.Drawing.Point(592, 101);
+            this.outPicBox.Location = new System.Drawing.Point(654, 101);
             this.outPicBox.Name = "outPicBox";
-            this.outPicBox.Size = new System.Drawing.Size(450, 450);
+            this.outPicBox.Size = new System.Drawing.Size(400, 450);
             this.outPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.outPicBox.TabIndex = 6;
             this.outPicBox.TabStop = false;
             // 
             // inPicBox
             // 
-            this.inPicBox.Location = new System.Drawing.Point(30, 101);
+            this.inPicBox.Location = new System.Drawing.Point(12, 101);
             this.inPicBox.Name = "inPicBox";
-            this.inPicBox.Size = new System.Drawing.Size(450, 450);
+            this.inPicBox.Size = new System.Drawing.Size(400, 450);
             this.inPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.inPicBox.TabIndex = 7;
             this.inPicBox.TabStop = false;
@@ -72,7 +84,7 @@
             // moveButt
             // 
             this.moveButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.moveButt.Location = new System.Drawing.Point(486, 118);
+            this.moveButt.Location = new System.Drawing.Point(6, 24);
             this.moveButt.Name = "moveButt";
             this.moveButt.Size = new System.Drawing.Size(100, 30);
             this.moveButt.TabIndex = 8;
@@ -83,7 +95,7 @@
             // spinButt
             // 
             this.spinButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.spinButt.Location = new System.Drawing.Point(486, 163);
+            this.spinButt.Location = new System.Drawing.Point(124, 24);
             this.spinButt.Name = "spinButt";
             this.spinButt.Size = new System.Drawing.Size(100, 30);
             this.spinButt.TabIndex = 9;
@@ -94,7 +106,7 @@
             // enlargeButt
             // 
             this.enlargeButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.enlargeButt.Location = new System.Drawing.Point(486, 211);
+            this.enlargeButt.Location = new System.Drawing.Point(6, 60);
             this.enlargeButt.Name = "enlargeButt";
             this.enlargeButt.Size = new System.Drawing.Size(100, 30);
             this.enlargeButt.TabIndex = 10;
@@ -105,7 +117,7 @@
             // narrowButt
             // 
             this.narrowButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.narrowButt.Location = new System.Drawing.Point(486, 257);
+            this.narrowButt.Location = new System.Drawing.Point(124, 60);
             this.narrowButt.Name = "narrowButt";
             this.narrowButt.Size = new System.Drawing.Size(100, 30);
             this.narrowButt.TabIndex = 11;
@@ -116,7 +128,7 @@
             // mirrorButt
             // 
             this.mirrorButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.mirrorButt.Location = new System.Drawing.Point(486, 307);
+            this.mirrorButt.Location = new System.Drawing.Point(6, 96);
             this.mirrorButt.Name = "mirrorButt";
             this.mirrorButt.Size = new System.Drawing.Size(100, 30);
             this.mirrorButt.TabIndex = 12;
@@ -124,25 +136,143 @@
             this.mirrorButt.UseVisualStyleBackColor = true;
             this.mirrorButt.Click += new System.EventHandler(this.mirrorButt_Click);
             // 
+            // linearExpandButt
+            // 
+            this.linearExpandButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.linearExpandButt.Location = new System.Drawing.Point(6, 24);
+            this.linearExpandButt.Name = "linearExpandButt";
+            this.linearExpandButt.Size = new System.Drawing.Size(100, 30);
+            this.linearExpandButt.TabIndex = 13;
+            this.linearExpandButt.Text = "线性展宽";
+            this.linearExpandButt.UseVisualStyleBackColor = true;
+            this.linearExpandButt.Click += new System.EventHandler(this.linearExpandButt_Click);
+            // 
+            // nonlinearExpandButt1
+            // 
+            this.nonlinearExpandButt1.Cursor = System.Windows.Forms.Cursors.Default;
+            this.nonlinearExpandButt1.Location = new System.Drawing.Point(124, 24);
+            this.nonlinearExpandButt1.Name = "nonlinearExpandButt1";
+            this.nonlinearExpandButt1.Size = new System.Drawing.Size(100, 30);
+            this.nonlinearExpandButt1.TabIndex = 14;
+            this.nonlinearExpandButt1.Text = "对数展宽";
+            this.nonlinearExpandButt1.UseVisualStyleBackColor = true;
+            this.nonlinearExpandButt1.Click += new System.EventHandler(this.nonlinearExpandButt_Click);
+            // 
+            // histogramAvgButt
+            // 
+            this.histogramAvgButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.histogramAvgButt.Location = new System.Drawing.Point(124, 60);
+            this.histogramAvgButt.Name = "histogramAvgButt";
+            this.histogramAvgButt.Size = new System.Drawing.Size(100, 30);
+            this.histogramAvgButt.TabIndex = 15;
+            this.histogramAvgButt.Text = "直方均衡";
+            this.histogramAvgButt.UseVisualStyleBackColor = true;
+            this.histogramAvgButt.Click += new System.EventHandler(this.histogramAvgButt_Click);
+            // 
+            // colorButt
+            // 
+            this.colorButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.colorButt.Location = new System.Drawing.Point(6, 96);
+            this.colorButt.Name = "colorButt";
+            this.colorButt.Size = new System.Drawing.Size(100, 30);
+            this.colorButt.TabIndex = 16;
+            this.colorButt.Text = "伪彩色";
+            this.colorButt.UseVisualStyleBackColor = true;
+            this.colorButt.Click += new System.EventHandler(this.colorButt_Click);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Enabled = false;
+            this.textBox1.Location = new System.Drawing.Point(347, 557);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(368, 25);
+            this.textBox1.TabIndex = 17;
+            this.textBox1.Text = "空域处理将先转换为灰度图像且不保存输出图像";
+            this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // resetButt
+            // 
+            this.resetButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.resetButt.Location = new System.Drawing.Point(180, 50);
+            this.resetButt.Name = "resetButt";
+            this.resetButt.Size = new System.Drawing.Size(100, 30);
+            this.resetButt.TabIndex = 18;
+            this.resetButt.Text = "重置";
+            this.resetButt.UseVisualStyleBackColor = true;
+            this.resetButt.Click += new System.EventHandler(this.resetButt_Click);
+            // 
+            // nonlinearExpandButt2
+            // 
+            this.nonlinearExpandButt2.Cursor = System.Windows.Forms.Cursors.Default;
+            this.nonlinearExpandButt2.Location = new System.Drawing.Point(6, 60);
+            this.nonlinearExpandButt2.Name = "nonlinearExpandButt2";
+            this.nonlinearExpandButt2.Size = new System.Drawing.Size(100, 30);
+            this.nonlinearExpandButt2.TabIndex = 19;
+            this.nonlinearExpandButt2.Text = "指数展宽";
+            this.nonlinearExpandButt2.UseVisualStyleBackColor = true;
+            this.nonlinearExpandButt2.Click += new System.EventHandler(this.nonlinearExpandButt2_Click);
+            // 
+            // saveButt
+            // 
+            this.saveButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.saveButt.Location = new System.Drawing.Point(312, 50);
+            this.saveButt.Name = "saveButt";
+            this.saveButt.Size = new System.Drawing.Size(100, 30);
+            this.saveButt.TabIndex = 20;
+            this.saveButt.Text = "保存输出";
+            this.saveButt.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.moveButt);
+            this.groupBox1.Controls.Add(this.spinButt);
+            this.groupBox1.Controls.Add(this.enlargeButt);
+            this.groupBox1.Controls.Add(this.narrowButt);
+            this.groupBox1.Controls.Add(this.mirrorButt);
+            this.groupBox1.Location = new System.Drawing.Point(418, 101);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(230, 130);
+            this.groupBox1.TabIndex = 21;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "几何处理";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.linearExpandButt);
+            this.groupBox2.Controls.Add(this.nonlinearExpandButt1);
+            this.groupBox2.Controls.Add(this.nonlinearExpandButt2);
+            this.groupBox2.Controls.Add(this.histogramAvgButt);
+            this.groupBox2.Controls.Add(this.colorButt);
+            this.groupBox2.Location = new System.Drawing.Point(418, 249);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(230, 138);
+            this.groupBox2.TabIndex = 22;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "空域处理";
+            // 
             // Geo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1066, 614);
-            this.Controls.Add(this.mirrorButt);
-            this.Controls.Add(this.narrowButt);
-            this.Controls.Add(this.enlargeButt);
-            this.Controls.Add(this.spinButt);
-            this.Controls.Add(this.moveButt);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.saveButt);
+            this.Controls.Add(this.resetButt);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.inPicBox);
             this.Controls.Add(this.outPicBox);
             this.Controls.Add(this.geoOpenIn);
             this.Name = "Geo";
             this.Text = "Geo";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Geo_FormClosed);
             this.Load += new System.EventHandler(this.Geo_Load);
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -156,5 +286,15 @@
         private System.Windows.Forms.Button enlargeButt;
         private System.Windows.Forms.Button narrowButt;
         private System.Windows.Forms.Button mirrorButt;
+        private System.Windows.Forms.Button linearExpandButt;
+        private System.Windows.Forms.Button nonlinearExpandButt1;
+        private System.Windows.Forms.Button histogramAvgButt;
+        private System.Windows.Forms.Button colorButt;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button resetButt;
+        private System.Windows.Forms.Button nonlinearExpandButt2;
+        private System.Windows.Forms.Button saveButt;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
     }
 }

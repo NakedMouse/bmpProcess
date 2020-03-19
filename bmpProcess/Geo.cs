@@ -21,7 +21,11 @@ namespace bmpProcess
         public Geo()
         {
             InitializeComponent();
+            inPic = new process();
+            outPic = new process();
         }
+
+
 
         private void geoOpenIn_Click(object sender, EventArgs e)
         {
@@ -51,6 +55,22 @@ namespace bmpProcess
                 {
                     MessageBox.Show(ex.Message);
                 }
+            }
+        }
+
+        private void resetButt_Click(object sender, EventArgs e)
+        {
+            this.outPicBox.Image = null;
+            this.inPicBox.Image = null;
+            try
+            {
+                fs.Close();
+                inPic.fs.Close();
+                outPic.fs.Close();
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show(ex.Message);
             }
         }
 
@@ -84,6 +104,21 @@ namespace bmpProcess
                         case 5:
                             tag = process.mirror(inPic, out outPic);
                             break;
+                        case 6:
+                            this.outPicBox.Image = process.linearExpand(inPic);
+                            return;
+                        case 7:
+                            this.outPicBox.Image = process.nonlinearExpand(inPic);
+                            return;
+                        case 8:
+                            this.outPicBox.Image = process.nonlinearExpand1(inPic);
+                            return;
+                        case 9:
+                            this.outPicBox.Image = process.grayHistrogramAvg(inPic);
+                            return;
+                        case 10:
+                            this.outPicBox.Image = process.fakeColor(inPic);
+                            return;
                     }
                     if (tag)
                     {
@@ -110,8 +145,6 @@ namespace bmpProcess
             singleMethod(5);
         }
 
-        
-
         private void spinButt_Click(object sender, EventArgs e)
         {
             singleMethod(2);
@@ -125,6 +158,65 @@ namespace bmpProcess
         private void narrowButt_Click(object sender, EventArgs e)
         {
             singleMethod(4);
+        }
+
+        private void linearExpandButt_Click(object sender, EventArgs e)
+        {
+            singleMethod(6);
+        }
+
+        private void nonlinearExpandButt_Click(object sender, EventArgs e)
+        {
+            singleMethod(7);
+        }
+
+        private void nonlinearExpandButt2_Click(object sender, EventArgs e)
+        {
+            singleMethod(8);
+        }
+
+        private void histogramAvgButt_Click(object sender, EventArgs e)
+        {
+            singleMethod(9);
+        }
+
+        private void colorButt_Click(object sender, EventArgs e)
+        {
+            singleMethod(10);
+        }
+
+        private void saveButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (pathname != string.Empty)
+                {
+                    SaveFileDialog save = new SaveFileDialog();
+                    save.ShowDialog();
+                    outPicBox.Image.Save(save.FileName);
+                    MessageBox.Show("Save success!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Input a file name as a bmp file\n" + ex);
+            }
+        }
+
+        private void Geo_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.outPicBox.Image = null;
+            this.inPicBox.Image = null;
+            try
+            {
+                fs.Close();
+                inPic.fs.Close();
+                outPic.fs.Close();
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show(ex.Message);
+            }
         }
 
 

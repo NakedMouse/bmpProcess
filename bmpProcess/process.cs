@@ -93,7 +93,7 @@ namespace bmpProcess
             //filestream.Close();
         }
 
-        public bool transToGray(out process outPic)
+        public bool transToGray(out process outPic, int tag)
         {
             if (infoHader.channels != 3) 
             {
@@ -101,21 +101,26 @@ namespace bmpProcess
                 return false;
             }
             outPic = (process)this.MemberwiseClone();
-            if (outPic.fileHader.bfOffBits == 54)         //将原图片复制到新图片中 
+
+            //FileHader fileHader = this.fileHader;
+            //InfoHader infoHader = this.infoHader;
+
+            //this.colorTable.CopyTo(outPic.colorTable, 0);
+            int newLw = ((int)this.infoHader.biWidth + 3) / 4 * 4;
+            uint newLength = (uint)(newLw * this.infoHader.biHeight);
+            outPic.pixelData = new byte[newLength];
+            outPic.colorTable = new byte[1024];
+
+            for (int i = 0 ; i < 256; i++)
             {
-                //this.pixelData.CopyTo(picR.pixelData, 0);
-                outPic.pixelData = (byte[])pixelData.Clone();
-            }
-            else 
-            {
-                //索引色暂时未适配
-                //this.pixelData.CopyTo(picR.pixelData, this.infoHader.length);
-                //this.colorTable.CopyTo(picR.colorTable, (int)(picR.fileHader.bfOffBits - 54));
-                this.pixelData.CopyTo(outPic.pixelData, 0);
-                this.colorTable.CopyTo(outPic.colorTable, 0);
+                outPic.colorTable[i * 4] = (byte)i;
+                outPic.colorTable[i * 4 + 1] = (byte)i;
+                outPic.colorTable[i * 4 + 2] = (byte)i;
+                outPic.colorTable[i * 4 + 3] = 0;
             }
 
-            uint fixNum = infoHader.l_width - infoHader.biWidth * infoHader.channels;
+            //修改一下，改成8位存储
+            int fixNum = newLw - (int)infoHader.biWidth;
             for (uint h = 0, w = 0, i = 0; h < infoHader.biHeight ; h++) 
             {
 		        Byte charTemp;
@@ -130,20 +135,66 @@ namespace bmpProcess
 			        temp = (R * 299 + G * 587 + B * 144 + 500) / 1000;
                     if (temp > 255) temp = 255;
 			        charTemp = (Byte)(0xff & temp);
-                    outPic.pixelData[h * infoHader.l_width + grayIndex] = charTemp;
-                    outPic.pixelData[h * infoHader.l_width + grayIndex + 1] = charTemp;
-                    outPic.pixelData[h * infoHader.l_width + grayIndex + 2] = charTemp;
+                    outPic.pixelData[h * newLw + w] = charTemp;
 		        }
 
 		        //补位
 		        charTemp = 0xff;
 		        for (uint j = 0; j < fixNum; j++) {
-                    outPic.pixelData[h * infoHader.l_width + w * infoHader.channels + j] = charTemp;
+                    outPic.pixelData[h * newLw + w + j] = charTemp;
 		        }
 	        }
 
-            outPic.toFileStream(this.fs.Name , 1);
+
+            outPic.fileHader.bfOffBits = (uint)1078;
+            outPic.fileHader.bfSize = (uint)(54 +1024 + newLength);
+            outPic.infoHader.biBitCount = (ushort)8;
+            outPic.infoHader.biSizeImage = (uint)(newLength);
+            outPic.infoHader.length = (uint)(newLength);
+            outPic.infoHader.l_width = (uint)newLw;
+            if (tag == 1)
+            {
+                outPic.toFileStream(this.fs.Name , 1);
+            }
             return true;
+        }
+
+        public System.Drawing.Image ReturnPhoto(byte[] streamByte)
+        {
+            System.IO.MemoryStream ms = new System.IO.MemoryStream(streamByte);
+            System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
+            return img;
+        }
+
+        public static System.Drawing.Image ReturnPhoto(process inPic)
+        {
+            //结构体到字节数组
+            IntPtr filePtr = Marshal.AllocHGlobal(14);
+            Marshal.StructureToPtr(inPic.fileHader, filePtr, false);
+            Byte[] fileBuff = new Byte[14];
+            Marshal.Copy(filePtr, fileBuff, 0, 14);
+            Marshal.FreeHGlobal(filePtr);
+
+            IntPtr infoPtr = Marshal.AllocHGlobal(52);
+            Marshal.StructureToPtr(inPic.infoHader, infoPtr, false);
+            Byte[] infoBuff = new Byte[40];
+            Marshal.Copy(infoPtr, infoBuff, 0, 40);
+            Marshal.FreeHGlobal(infoPtr);
+
+            List<byte> list = new List<byte>();
+            list.AddRange(fileBuff);
+            list.AddRange(infoBuff);
+
+            if (inPic.fileHader.bfOffBits != 54)
+            {
+
+                list.AddRange(inPic.colorTable);
+            }
+            list.AddRange(inPic.pixelData);
+
+            System.IO.MemoryStream ms = new System.IO.MemoryStream(list.ToArray());
+            System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
+            return img;
         }
 
         private string getName(string inName)
@@ -295,9 +346,12 @@ namespace bmpProcess
             outPic = (process)inPic.MemberwiseClone();
             if (outPic.fileHader.bfOffBits != 54)
             {
-                outPic.colorTable = (byte[])inPic.colorTable.Clone();
+                outPic.colorTable = new byte[1024];
+                Array.Copy(inPic.colorTable, outPic.colorTable, 1024);
+                //outPic.colorTable =  (byte[])inPic.colorTable.Clone();
             }
-            outPic.pixelData = (byte[])inPic.pixelData.Clone();
+            outPic.pixelData = new byte[outPic.infoHader.length];
+            Array.Copy(inPic.pixelData, outPic.pixelData, (int)(outPic.infoHader.length));
         }
        
         //双目运算 mode 1,2,3,4分别表示加减乘除 , 5,6表示逻辑与、或运算
@@ -423,6 +477,12 @@ namespace bmpProcess
             return true;
         }
 
+        /// <summary>
+        /// 缩小函数，仅接受24位图像输入
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="outPic"></param>
+        /// <returns></returns>
         public static bool narrow(process inPic, out process outPic)
         {
             //xy统一缩小50%
@@ -627,6 +687,191 @@ namespace bmpProcess
 
             return true;
         }
+
+        //位面切割，如果不是8位图像自动转化位8位 
+        public static System.Drawing.Image bitCut(process inPic, int mode )
+        {
+            process outPic = new process();
+            if (inPic.infoHader.biBitCount != 8)
+            {
+                inPic.transToGray(out outPic, 2);
+            }
+            else
+            {
+                copy(inPic, out outPic);
+            }
+
+            for (int i = 0; i < outPic.infoHader.length; i++)
+            {
+                int temp = outPic.pixelData[i] & (1 << mode);
+                
+                outPic.pixelData[i] = (byte)temp;    
+            }
+
+            return ReturnPhoto(outPic);
+        }
+
+        //线性拓展
+        public static System.Drawing.Image linearExpand(process inPic)
+        {
+            process outPic = new process();
+            double a = 1.2;
+            double b = -50;
+            //int left = 70;
+            //int right = 200;
+
+            if (inPic.infoHader.biBitCount != 8)
+            {
+                inPic.transToGray(out outPic, 2);
+            }
+            else
+            {
+                copy(inPic, out outPic);
+            }
+
+            for (int i = 0; i < outPic.infoHader.length; i++)
+            {
+                int temp = (int)outPic.pixelData[i];
+                temp = (int)(a * temp+0.5 + b);
+                if (temp < 0) temp = 0;
+                if (temp > 255) temp = 255;
+                outPic.pixelData[i] = (byte)temp;
+            }
+            return ReturnPhoto(outPic);
+        }
+
+        //对数拓展
+        public static System.Drawing.Image nonlinearExpand(process inPic)
+        {
+            process outPic = new process();
+            //double a = 1.2;
+            //double b = -50;
+            //int left = 70;
+            //int right = 200;
+            double c = 255 / Math.Log10(256);
+
+            if (inPic.infoHader.biBitCount != 8)
+            {
+                inPic.transToGray(out outPic, 2);
+            }
+            else
+            {
+                copy(inPic, out outPic);
+            }
+
+            for (int i = 0; i < outPic.infoHader.length; i++)
+            {
+                int temp = outPic.pixelData[i];
+                temp = (int)(c * Math.Log10(1 + temp));
+                if (temp > 255) temp = 255;
+                outPic.pixelData[i] = (byte)temp;
+
+            }
+            return ReturnPhoto(outPic);
+        }
+
+        //指数拓展
+        public static System.Drawing.Image nonlinearExpand1(process inPic)
+        {
+            process outPic = new process();
+            double gama = 1.2;
+                
+            if (inPic.infoHader.biBitCount != 8)
+            {
+                inPic.transToGray(out outPic, 2);
+            }
+            else
+            {
+                copy(inPic, out outPic);
+            }
+
+            for (int i = 0; i < outPic.infoHader.length; i++)
+            {
+                int temp = outPic.pixelData[i];
+                temp = (int)(Math.Pow(temp, gama));
+                if (temp > 255) temp = 255;
+                outPic.pixelData[i] = (byte)temp;
+
+            }
+            return ReturnPhoto(outPic);
+        }
+        
+        /// <summary>
+        /// 直方均衡
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <returns></returns>
+        public static System.Drawing.Image grayHistrogramAvg(process inPic)
+        {
+            process outPic = new process();
+            if (inPic.infoHader.biBitCount != 8)
+            {
+                if (!inPic.transToGray(out outPic, 2)) return ReturnPhoto(outPic);
+            }
+            else
+            {
+                copy(inPic, out outPic);
+            }
+
+            int[] grayHis = new int[256];
+            double sum = (double)(outPic.infoHader.biHeight * outPic.infoHader.biWidth);
+            //统计直方图
+            for (int h = 0, w = 0; h < outPic.infoHader.biHeight; h++)
+            {
+                for (w = 0; w < outPic.infoHader.biWidth; w++)
+                {
+                    uint temp = (uint)(outPic.pixelData[h * outPic.infoHader.l_width + w] - 0);
+                    grayHis[temp]++;
+                }
+            }
+            double[] pro = new double[256];
+            for (int i = 0; i < 256; i++)
+            {
+                pro[i] = (double)grayHis[i] / sum;
+                if (i != 0)
+                {
+                    pro[i] += pro[i - 1];
+                }
+                grayHis[i] = (int)(255 * pro[i] + 0.5);
+            }
+
+            for (int h = 0, w = 0; h < outPic.infoHader.biHeight; h++)
+            {
+                for (w = 0; w < outPic.infoHader.biWidth; w++)
+                {
+                    outPic.pixelData[h * outPic.infoHader.l_width + w] = (byte)grayHis[(int)outPic.pixelData[h * outPic.infoHader.l_width + w]];
+                }
+            }
+            return ReturnPhoto(outPic);
+        }
+
+        /// <summary>
+        /// 基于灰度调色板的伪彩色变换
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <returns></returns>
+        //基于灰度调色板的伪彩色变换
+        public static System.Drawing.Image fakeColor(process inPic)
+        {
+            process outPic;
+            if (inPic.infoHader.biBitCount != 8)
+            {
+                if (!inPic.transToGray(out outPic, 2)) return ReturnPhoto(outPic);
+            }
+            else
+            {
+                copy(inPic, out outPic);
+            }
+
+            for (int i = 0; i < 256; i ++)
+            {
+                outPic.colorTable[i * 4] = (byte)((i * 2 + 80) / 1 + 20);
+                outPic.colorTable[i * 4 + 1] = (byte)((i * 4 + 120) / 3 + 21);
+                outPic.colorTable[i * 4 + 2] = (byte)((i + 40) / 2 + 3);
+            }
+            return ReturnPhoto(outPic);
+        }
+
 
     }
 }

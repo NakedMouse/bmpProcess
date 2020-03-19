@@ -26,7 +26,7 @@ namespace bmpProcess
         {
             //showRight(pathname);
             outPic = new process();
-            if (inPic1.transToGray(out outPic)) 
+            if (inPic1.transToGray(out outPic, 1)) 
             {
                 this.outPicBox.Image = Image.FromStream(outPic.fs);
                 isRshow = true;
@@ -71,6 +71,7 @@ namespace bmpProcess
                     pathname = file.FileName;
                     fs = new FileStream(pathname, FileMode.Open, FileAccess.ReadWrite);
                     this.InPicBox2.Image = System.Drawing.Image.FromStream(fs);
+
                     //this.picBoxL.Load(pathname);
                     if (isRshow)
                     {
@@ -79,12 +80,9 @@ namespace bmpProcess
                     }
                     if (fs != null)
                     {
-                        //inPic2 = new process();
                         inPic2.getData(fs);
-                        //ulong a = pic.fileHader.bfSize;
-                        //string str = "type:" + (inPic1.fileHader.bfType - 0x0).ToString() + "  offBits:" + (inPic1.fileHader.bfOffBits - 0).ToString();
-                        //MessageBox.Show(str);
                     }
+                    fs.Close();
                 }
                 catch (Exception ex)
                 {
@@ -202,6 +200,13 @@ namespace bmpProcess
                 outPic.fs.Close();
                 MessageBox.Show("Please open two picture with same size!\n");
             }
+        }
+
+        private void bitCutButt_Click(object sender, EventArgs e)
+        {
+            bitCut bitcut = new bitCut();
+            bitcut.Show();
+
         }
     }
 }
