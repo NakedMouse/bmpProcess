@@ -208,5 +208,21 @@ namespace bmpProcess
             bitcut.Show();
 
         }
+
+        private void saveButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog save = new SaveFileDialog();
+                save.ShowDialog();
+                outPicBox.Image.Save(save.FileName);
+                MessageBox.Show("Save success!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Input a file name as a bmp file\n" + ex);
+            }
+        }
+
     }
 }

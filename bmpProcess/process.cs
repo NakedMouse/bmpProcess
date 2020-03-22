@@ -203,7 +203,6 @@ namespace bmpProcess
             int preIndex = inName.LastIndexOf('\\');
             return inName.Substring(preIndex + 1, lastIndex - preIndex - 1);
         }
-
         
         /// <summary>
         /// 第二个参数mode 1 为灰度图像 ， 2 3 4 5 依次为加减乘除
@@ -329,6 +328,12 @@ namespace bmpProcess
             fs.Write(this.pixelData, 0, (int)this.infoHader.length);
         }
 
+        /// <summary>
+        /// 深拷贝对象
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="outPic"></param>
+        //深拷贝对象
         private static void copy(process inPic , out process outPic)
         {
             outPic = (process)inPic.MemberwiseClone();
@@ -341,7 +346,33 @@ namespace bmpProcess
             outPic.pixelData = new byte[outPic.infoHader.length];
             Array.Copy(inPic.pixelData, outPic.pixelData, (int)(outPic.infoHader.length));
         }
-       
+
+        /// <summary>
+        /// 返回数组中值
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        //返回输入数组的中值
+        private static byte getMidNum(byte[] array)
+        {
+            int size = array.Length;
+
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = i; j < size; j++)
+                {
+                    if (array[i] > array[j])
+                    {
+                        byte temp = array[i];
+                        array[i] = array[j];
+                        array[j] = temp;
+                    }
+                }
+            }
+
+            return (byte)array[size / 2];
+        }
+
         //双目运算 mode 1,2,3,4分别表示加减乘除 , 5,6表示逻辑与、或运算
         public static bool doubOperator(process inPic1, process inPic2, out process outPic , int mode)
         {
@@ -514,7 +545,7 @@ namespace bmpProcess
             return true;
         }
 
-        //使用后向映射（双线性好像很好玩，有时间可以做一下）最近邻的线性插值锯齿现象交严重
+        //使用后向映射（双线性好像很好玩，有时间可以做一下）最近邻的线性插值锯齿现象较严重
         public static bool enlarge(process inPic, out process outPic)
         {
             double enlSize = 2.0;           //放大倍数，时间紧迫未完善做到根据输入确定放大倍数
@@ -582,7 +613,7 @@ namespace bmpProcess
             return true;
         }
 
-        ////时间关系只顺时针旋转45度
+        //时间关系只做了顺时针旋转45度
         public static bool spin(process inPic, out process outPic)
         {
             double cos = 0.707;         //旋转角度
@@ -676,6 +707,9 @@ namespace bmpProcess
             return true;
         }
 
+        /**一下算法输出图像不再自动保存，需要手动保存
+         **位图切割部分不提供保存功能**/
+
         //位面切割，如果不是8位图像自动转化位8位 
         public static System.Drawing.Image bitCut(process inPic, int mode )
         {
@@ -703,7 +737,7 @@ namespace bmpProcess
         public static System.Drawing.Image linearExpand(process inPic)
         {
             process outPic = new process();
-            double a = 1.2;
+            double a = 1.4;
             double b = -50;
             //int left = 70;
             //int right = 200;
@@ -862,5 +896,151 @@ namespace bmpProcess
             return ReturnPhoto(outPic);
         }
 
+        /// <summary>
+        /// 加权滤波器，请输入一个矩形二维数组
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        //加权滤波器
+        public static System.Drawing.Image weightFilter(process inPic, double[,] filter)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+
+            int size = filter.GetLength(0);
+            int broundLimit = size / 2;
+            double sum = 0;
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    sum += filter[i, j];
+                }
+
+            }
+
+            //double[,] temp = new double[size * size,outPic.infoHader.channels];
+            double[] temp = new double[outPic.infoHader.channels];
+
+            //h、w表示现在处理的像素点
+            for (int h = broundLimit; h < outPic.infoHader.biHeight - broundLimit; h++)
+            {
+                int hLow = h - broundLimit;
+                for (int w = broundLimit; w < outPic.infoHader.biWidth - broundLimit; w++)
+                {
+                    int wLow = w - broundLimit;
+                    //将这一像素模板覆盖的所有像素的数据写入temp中
+                    for (int i = hLow; i <= h + broundLimit; i++)
+                    {
+                        for (int j = wLow; j <= w + broundLimit; j++)
+                        {
+                            for (int k = 0; k < outPic.infoHader.channels; k++)
+                            {
+                                //i,j表示以当前像素为中心，模板覆盖位置 
+                                temp[k] += inPic.pixelData[i * outPic.infoHader.l_width + j * outPic.infoHader.channels + k] * filter[(i - hLow), (j - wLow)];
+                            }
+                        }
+                    }
+                    for (int k = 0; k < outPic.infoHader.channels; k++)
+                    {
+                        outPic.pixelData[h * outPic.infoHader.l_width + w * outPic.infoHader.channels + k] = (byte)(temp[k] / sum);
+                        temp[k] = 0;
+                    }
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
+
+        /// <summary>
+        /// 一维中值滤波器，请输入一个奇数设置滤波器大小
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        //一维中值滤波器
+        public static System.Drawing.Image medianFilter1D(process inPic, int size)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+
+            int broundLimit = size / 2;
+            byte[][] temp = new byte[outPic.infoHader.channels][];
+            for (int i = 0; i < outPic.infoHader.channels; i++)
+            {
+                temp[i] = new byte[size];
+            }
+
+            for (int h = 0; h < outPic.infoHader.biHeight; h++)
+            {
+                for (int w = broundLimit; w < outPic.infoHader.biWidth - broundLimit; w++)
+                {
+                    for (int i = w - broundLimit; i <= w + broundLimit; i++)
+                    {
+                        for (int k = 0; k < outPic.infoHader.channels; k++)
+                        {
+                            temp[k][(i - (w - broundLimit))] = outPic.pixelData[h * outPic.infoHader.l_width + i * outPic.infoHader.channels + k];
+                        }
+                    }
+                    for (int k = 0; k < outPic.infoHader.channels; k++)
+                    {
+                        outPic.pixelData[h * outPic.infoHader.l_width + w * outPic.infoHader.channels + k] = getMidNum(temp[k]);
+                    }
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
+
+        /// <summary>
+        /// 二维中值滤波器，请输入二维矩阵宽度
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        //二维中值滤波器
+        public static System.Drawing.Image medianFilter2D(process inPic, int size)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+
+            int broundLimit = size / 2;
+            int length = size * size;
+
+            byte[][] temp = new byte[outPic.infoHader.channels][];
+            for (int i = 0; i < outPic.infoHader.channels; i++)
+            {
+                temp[i] = new byte[length];
+            }
+
+            for (int h = broundLimit; h < outPic.infoHader.biHeight - broundLimit; h++)
+            {
+                int hLow = h - broundLimit;
+                for (int w = broundLimit; w < outPic.infoHader.biWidth - broundLimit; w++)
+                {
+                    int wLow = w - broundLimit;
+
+                    for (int i = hLow; i <= h + broundLimit; i++)
+                    {
+                        for (int j = wLow; j <= w + broundLimit; j++)
+                        {
+                            for (int k = 0; k < outPic.infoHader.channels; k++)
+                            {
+                                temp[k][(i - hLow) * size + (j - wLow)] = outPic.pixelData[i * outPic.infoHader.l_width + j * outPic.infoHader.channels + k];
+                            }
+                        }
+                    }
+
+                    for (int k = 0; k < outPic.infoHader.channels; k++)
+                    {
+                        outPic.pixelData[h * outPic.infoHader.l_width + w * outPic.infoHader.channels + k] = getMidNum(temp[k]);
+                    }
+                }
+
+            }
+
+            return ReturnPhoto(outPic);
+        }
     }
 }

@@ -47,6 +47,7 @@
             this.noButt = new System.Windows.Forms.Button();
             this.openGeo = new System.Windows.Forms.Button();
             this.bitCutButt = new System.Windows.Forms.Button();
+            this.saveButt = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.InPicBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.InPicBox2)).BeginInit();
@@ -220,7 +221,7 @@
             // 
             // openGeo
             // 
-            this.openGeo.Location = new System.Drawing.Point(556, 25);
+            this.openGeo.Location = new System.Drawing.Point(824, 25);
             this.openGeo.Name = "openGeo";
             this.openGeo.Size = new System.Drawing.Size(125, 30);
             this.openGeo.TabIndex = 18;
@@ -230,7 +231,7 @@
             // 
             // bitCutButt
             // 
-            this.bitCutButt.Location = new System.Drawing.Point(702, 25);
+            this.bitCutButt.Location = new System.Drawing.Point(955, 25);
             this.bitCutButt.Name = "bitCutButt";
             this.bitCutButt.Size = new System.Drawing.Size(100, 30);
             this.bitCutButt.TabIndex = 19;
@@ -238,11 +239,23 @@
             this.bitCutButt.UseVisualStyleBackColor = true;
             this.bitCutButt.Click += new System.EventHandler(this.bitCutButt_Click);
             // 
+            // saveButt
+            // 
+            this.saveButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.saveButt.Location = new System.Drawing.Point(457, 25);
+            this.saveButt.Name = "saveButt";
+            this.saveButt.Size = new System.Drawing.Size(100, 30);
+            this.saveButt.TabIndex = 21;
+            this.saveButt.Text = "保存输出";
+            this.saveButt.UseVisualStyleBackColor = true;
+            this.saveButt.Click += new System.EventHandler(this.saveButt_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1087, 612);
+            this.Controls.Add(this.saveButt);
             this.Controls.Add(this.bitCutButt);
             this.Controls.Add(this.openGeo);
             this.Controls.Add(this.noButt);
@@ -294,6 +307,7 @@
         private System.Windows.Forms.Button noButt;
         private System.Windows.Forms.Button openGeo;
         private System.Windows.Forms.Button bitCutButt;
+        private System.Windows.Forms.Button saveButt;
     }
 }
 

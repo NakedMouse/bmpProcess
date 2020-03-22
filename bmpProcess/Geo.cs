@@ -185,24 +185,6 @@ namespace bmpProcess
             singleMethod(10);
         }
 
-        private void saveButt_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (pathname != string.Empty)
-                {
-                    SaveFileDialog save = new SaveFileDialog();
-                    save.ShowDialog();
-                    outPicBox.Image.Save(save.FileName);
-                    MessageBox.Show("Save success!");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Input a file name as a bmp file\n" + ex);
-            }
-        }
-
         private void Geo_FormClosed(object sender, FormClosedEventArgs e)
         {
             this.outPicBox.Image = null;
@@ -219,6 +201,72 @@ namespace bmpProcess
             }
         }
 
+        private void saveButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog save = new SaveFileDialog();
+                save.ShowDialog();
+                outPicBox.Image.Save(save.FileName);
+                MessageBox.Show("Save success!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Input a file name as a bmp file\n" + ex);
+            }
+        }
+
+        private void avgFilterButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                double[,] filter = { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
+                this.outPicBox.Image = process.weightFilter(inPic, filter);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void weightFilterButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                double[,] filter = { { 1,1,1}, {1,0,1}, {1,1,1} };
+                this.outPicBox.Image = process.weightFilter(inPic, filter);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void midFilterButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int size = 5;
+                this.outPicBox.Image = process.medianFilter1D(inPic, size);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void medianFilter2DButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int size = 5;
+                this.outPicBox.Image = process.medianFilter2D(inPic, size);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
 
     }

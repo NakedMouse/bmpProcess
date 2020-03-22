@@ -46,10 +46,16 @@
             this.saveButt = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.avgFilterButt = new System.Windows.Forms.Button();
+            this.weightFilterButt = new System.Windows.Forms.Button();
+            this.midFilterButt = new System.Windows.Forms.Button();
+            this.medianFilter2DButt = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // geoOpenIn
@@ -221,6 +227,7 @@
             this.saveButt.TabIndex = 20;
             this.saveButt.Text = "保存输出";
             this.saveButt.UseVisualStyleBackColor = true;
+            this.saveButt.Click += new System.EventHandler(this.saveButt_Click);
             // 
             // groupBox1
             // 
@@ -250,11 +257,69 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "空域处理";
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.avgFilterButt);
+            this.groupBox3.Controls.Add(this.weightFilterButt);
+            this.groupBox3.Controls.Add(this.midFilterButt);
+            this.groupBox3.Controls.Add(this.medianFilter2DButt);
+            this.groupBox3.Location = new System.Drawing.Point(418, 393);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(230, 138);
+            this.groupBox3.TabIndex = 23;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "滤波处理";
+            // 
+            // avgFilterButt
+            // 
+            this.avgFilterButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.avgFilterButt.Location = new System.Drawing.Point(6, 24);
+            this.avgFilterButt.Name = "avgFilterButt";
+            this.avgFilterButt.Size = new System.Drawing.Size(100, 30);
+            this.avgFilterButt.TabIndex = 13;
+            this.avgFilterButt.Text = "均值滤波";
+            this.avgFilterButt.UseVisualStyleBackColor = true;
+            this.avgFilterButt.Click += new System.EventHandler(this.avgFilterButt_Click);
+            // 
+            // weightFilterButt
+            // 
+            this.weightFilterButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.weightFilterButt.Location = new System.Drawing.Point(124, 24);
+            this.weightFilterButt.Name = "weightFilterButt";
+            this.weightFilterButt.Size = new System.Drawing.Size(100, 30);
+            this.weightFilterButt.TabIndex = 14;
+            this.weightFilterButt.Text = "加权滤波";
+            this.weightFilterButt.UseVisualStyleBackColor = true;
+            this.weightFilterButt.Click += new System.EventHandler(this.weightFilterButt_Click);
+            // 
+            // midFilterButt
+            // 
+            this.midFilterButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.midFilterButt.Location = new System.Drawing.Point(6, 60);
+            this.midFilterButt.Name = "midFilterButt";
+            this.midFilterButt.Size = new System.Drawing.Size(100, 30);
+            this.midFilterButt.TabIndex = 19;
+            this.midFilterButt.Text = "一维中值";
+            this.midFilterButt.UseVisualStyleBackColor = true;
+            this.midFilterButt.Click += new System.EventHandler(this.midFilterButt_Click);
+            // 
+            // medianFilter2DButt
+            // 
+            this.medianFilter2DButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.medianFilter2DButt.Location = new System.Drawing.Point(124, 60);
+            this.medianFilter2DButt.Name = "medianFilter2DButt";
+            this.medianFilter2DButt.Size = new System.Drawing.Size(100, 30);
+            this.medianFilter2DButt.TabIndex = 15;
+            this.medianFilter2DButt.Text = "二维中值";
+            this.medianFilter2DButt.UseVisualStyleBackColor = true;
+            this.medianFilter2DButt.Click += new System.EventHandler(this.medianFilter2DButt_Click);
+            // 
             // Geo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1066, 614);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.saveButt);
@@ -271,6 +336,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -296,5 +362,10 @@
         private System.Windows.Forms.Button saveButt;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Button avgFilterButt;
+        private System.Windows.Forms.Button weightFilterButt;
+        private System.Windows.Forms.Button midFilterButt;
+        private System.Windows.Forms.Button medianFilter2DButt;
     }
 }
