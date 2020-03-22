@@ -51,6 +51,10 @@
             this.weightFilterButt = new System.Windows.Forms.Button();
             this.midFilterButt = new System.Windows.Forms.Button();
             this.medianFilter2DButt = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBox3 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -265,7 +269,7 @@
             this.groupBox3.Controls.Add(this.medianFilter2DButt);
             this.groupBox3.Location = new System.Drawing.Point(418, 393);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(230, 138);
+            this.groupBox3.Size = new System.Drawing.Size(230, 100);
             this.groupBox3.TabIndex = 23;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "滤波处理";
@@ -314,11 +318,49 @@
             this.medianFilter2DButt.UseVisualStyleBackColor = true;
             this.medianFilter2DButt.Click += new System.EventHandler(this.medianFilter2DButt_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(86, 560);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(67, 15);
+            this.label1.TabIndex = 26;
+            this.label1.Text = "对比度：";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(781, 560);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(67, 15);
+            this.label2.TabIndex = 27;
+            this.label2.Text = "对比度：";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Enabled = false;
+            this.textBox2.Location = new System.Drawing.Point(159, 557);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(100, 25);
+            this.textBox2.TabIndex = 28;
+            // 
+            // textBox3
+            // 
+            this.textBox3.Enabled = false;
+            this.textBox3.Location = new System.Drawing.Point(854, 557);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(100, 25);
+            this.textBox3.TabIndex = 29;
+            // 
             // Geo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1066, 614);
+            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -367,5 +409,9 @@
         private System.Windows.Forms.Button weightFilterButt;
         private System.Windows.Forms.Button midFilterButt;
         private System.Windows.Forms.Button medianFilter2DButt;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox3;
     }
 }

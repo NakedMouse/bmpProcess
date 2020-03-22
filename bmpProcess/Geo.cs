@@ -106,18 +106,23 @@ namespace bmpProcess
                             break;
                         case 6:
                             this.outPicBox.Image = process.linearExpand(inPic);
+                            getContrast();
                             return;
                         case 7:
                             this.outPicBox.Image = process.nonlinearExpand(inPic);
+                            getContrast();
                             return;
                         case 8:
                             this.outPicBox.Image = process.nonlinearExpand1(inPic);
+                            getContrast();
                             return;
                         case 9:
                             this.outPicBox.Image = process.grayHistrogramAvg(inPic);
+                            getContrast();
                             return;
                         case 10:
                             this.outPicBox.Image = process.fakeColor(inPic);
+                            getContrast();
                             return;
                     }
                     if (tag)
@@ -222,6 +227,7 @@ namespace bmpProcess
             {
                 double[,] filter = { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
                 this.outPicBox.Image = process.weightFilter(inPic, filter);
+                getContrast();
             }
             catch(Exception ex)
             {
@@ -235,6 +241,7 @@ namespace bmpProcess
             {
                 double[,] filter = { { 1,1,1}, {1,0,1}, {1,1,1} };
                 this.outPicBox.Image = process.weightFilter(inPic, filter);
+                getContrast();
             }
             catch (Exception ex)
             {
@@ -248,6 +255,7 @@ namespace bmpProcess
             {
                 int size = 5;
                 this.outPicBox.Image = process.medianFilter1D(inPic, size);
+                getContrast();
             }
             catch (Exception ex)
             {
@@ -261,6 +269,7 @@ namespace bmpProcess
             {
                 int size = 5;
                 this.outPicBox.Image = process.medianFilter2D(inPic, size);
+                getContrast();
             }
             catch (Exception ex)
             {
@@ -268,6 +277,36 @@ namespace bmpProcess
             }
         }
 
+        private void getContrast()
+        {
+            try
+            {
+                if (this.inPicBox.Image != null)
+                {
+                    double contrast1 = process.contrast(inPic, 1);
+                    this.textBox2.Text = contrast1.ToString();
+                }
+                if (this.outPicBox.Image != null)
+                {
+                    if (!Directory.Exists("out//temp"))
+                    {
+                        Directory.CreateDirectory("out//temp");
+                    }
+                    string file = "out//temp//temp.bmp";
+                    this.outPicBox.Image.Save(file);
+                    FileStream tempFs = new FileStream(file, FileMode.Open, FileAccess.ReadWrite);
+                    outPic.getData(tempFs);
+                    tempFs.Close();
+                    double contrast2 = process.contrast(outPic, 1);
+                    this.textBox3.Text = contrast2.ToString();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
     }
 }

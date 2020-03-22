@@ -73,7 +73,6 @@ namespace bmpProcess
             infoHader.channels = (uint) infoHader.biBitCount / 8;
             infoHader.l_width = (infoHader.biWidth * infoHader.channels + 3) / 4 * 4;
             infoHader.length = infoHader.l_width * infoHader.biHeight;
-            
 
 			if (fileHader.bfOffBits == 54)
 			{
@@ -908,6 +907,7 @@ namespace bmpProcess
             process outPic = new process();
             copy(inPic, out outPic);
 
+            uint channels = outPic.infoHader.channels;
             int size = filter.GetLength(0);
             int broundLimit = size / 2;
             double sum = 0;
@@ -917,11 +917,8 @@ namespace bmpProcess
                 {
                     sum += filter[i, j];
                 }
-
             }
-
-            //double[,] temp = new double[size * size,outPic.infoHader.channels];
-            double[] temp = new double[outPic.infoHader.channels];
+            double[] temp = new double[channels];
 
             //h、w表示现在处理的像素点
             for (int h = broundLimit; h < outPic.infoHader.biHeight - broundLimit; h++)
@@ -935,16 +932,16 @@ namespace bmpProcess
                     {
                         for (int j = wLow; j <= w + broundLimit; j++)
                         {
-                            for (int k = 0; k < outPic.infoHader.channels; k++)
+                            for (int k = 0; k < channels; k++)
                             {
                                 //i,j表示以当前像素为中心，模板覆盖位置 
-                                temp[k] += inPic.pixelData[i * outPic.infoHader.l_width + j * outPic.infoHader.channels + k] * filter[(i - hLow), (j - wLow)];
+                                temp[k] += inPic.pixelData[i * outPic.infoHader.l_width + j * channels + k] * filter[(i - hLow), (j - wLow)];
                             }
                         }
                     }
                     for (int k = 0; k < outPic.infoHader.channels; k++)
                     {
-                        outPic.pixelData[h * outPic.infoHader.l_width + w * outPic.infoHader.channels + k] = (byte)(temp[k] / sum);
+                        outPic.pixelData[h * outPic.infoHader.l_width + w * channels + k] = (byte)(temp[k] / sum);
                         temp[k] = 0;
                     }
                 }
@@ -1007,8 +1004,9 @@ namespace bmpProcess
 
             int broundLimit = size / 2;
             int length = size * size;
+            uint channels = outPic.infoHader.channels;
 
-            byte[][] temp = new byte[outPic.infoHader.channels][];
+            byte[][] temp = new byte[channels][];
             for (int i = 0; i < outPic.infoHader.channels; i++)
             {
                 temp[i] = new byte[length];
@@ -1020,21 +1018,20 @@ namespace bmpProcess
                 for (int w = broundLimit; w < outPic.infoHader.biWidth - broundLimit; w++)
                 {
                     int wLow = w - broundLimit;
-
                     for (int i = hLow; i <= h + broundLimit; i++)
                     {
                         for (int j = wLow; j <= w + broundLimit; j++)
                         {
-                            for (int k = 0; k < outPic.infoHader.channels; k++)
+                            for (int k = 0; k < channels; k++)
                             {
-                                temp[k][(i - hLow) * size + (j - wLow)] = outPic.pixelData[i * outPic.infoHader.l_width + j * outPic.infoHader.channels + k];
+                                temp[k][(i - hLow) * size + (j - wLow)] = outPic.pixelData[i * outPic.infoHader.l_width + j * channels + k];
                             }
                         }
                     }
 
                     for (int k = 0; k < outPic.infoHader.channels; k++)
                     {
-                        outPic.pixelData[h * outPic.infoHader.l_width + w * outPic.infoHader.channels + k] = getMidNum(temp[k]);
+                        outPic.pixelData[h * outPic.infoHader.l_width + w * channels + k] = getMidNum(temp[k]);
                     }
                 }
 
@@ -1042,5 +1039,89 @@ namespace bmpProcess
 
             return ReturnPhoto(outPic);
         }
+
+
+        /// <summary>
+        /// 返回图像对比度，mode==1为4近邻，mode==2为8近邻
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        //返回图像对比度
+        public static double contrast(process inPic, int mode)
+        {
+            int width = (int)inPic.infoHader.biWidth;
+            int height = (int)inPic.infoHader.biHeight;
+            int Lw = (int)inPic.infoHader.l_width;
+            int channels = (int)inPic.infoHader.channels;
+
+            int temp0 = 2, temp1 = 3, temp2 = 4;
+            int num = 0;
+            double[] contrastSum = new double[channels];
+
+            if (mode == 2)
+            {
+                temp0 = 3;
+                temp1 = 5;
+                temp2 = 8;
+            }
+            num = 4 * temp0 + ((int)(width - 2) + (int)(height - 2)) * 2 * temp1 + (int)((width - 2) * (height - 2) * temp2);
+
+            for (int h = 0; h < height; h++)
+            {
+                for (int w = 0; w < width; w++)
+                {
+                    if (h > 0)  
+                    {
+                        for (int k = 0; k < channels; k++)
+                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h - 1) * Lw + w * channels + k]), 2.0);
+                        
+                        if (mode == 2)
+                        {
+                            if (w > 0)
+                                for (int k = 0; k < channels; k++)
+                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h - 1) * Lw + (w - 1) * channels + k]), 2.0);
+                            
+                            if (w < width - 1)
+                                for (int k = 0; k < channels; k++)
+                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h - 1) * Lw + (w + 1) * channels + k]), 2.0);
+                        }
+                    }
+
+                    if (h < height - 1)
+                    {
+                        for (int k = 0; k < channels; k++)
+                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h + 1) * Lw + w * channels + k]), 2.0);
+                        
+                        if (mode == 2)
+                        {
+                            if (w > 0)
+                                for (int k = 0; k < channels; k++)
+                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h + 1) * Lw + (w - 1) * channels + k]), 2.0);
+                           
+                            if (w < width - 1)
+                                for (int k = 0; k < channels; k++)
+                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h + 1) * Lw + (w + 1) * channels + k]), 2.0);
+                        }
+                    }
+
+                    if (w > 0)
+                        for (int k = 0; k < channels; k++)
+                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[h * Lw + (w - 1) * channels + k]), 2.0);
+
+                    if(w<width-1)
+                        for (int k = 0; k < channels; k++)
+                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[h * Lw + (w + 1) * channels + k]), 2.0);
+                }
+            }
+            
+            double result = 0;
+            for (int k = 0; k < channels; k++)
+                result += contrastSum[k];
+
+            return result / channels / num;
+        }
+    
+    
     }
 }
