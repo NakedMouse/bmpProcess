@@ -49,6 +49,7 @@ namespace bmpProcess
                     {
                         inPic.getData(fs);
                     }
+                    getContrast();
                     fs.Close();
                 }
                 catch (Exception ex)
@@ -82,6 +83,7 @@ namespace bmpProcess
 
         private void singleMethod(int mode)
         {
+            int start = System.Environment.TickCount;
             try
             {
                 if (inPic.fileHader.bfType == 19778)
@@ -91,6 +93,7 @@ namespace bmpProcess
                     {
                         case 1:
                             tag = process.move(inPic, out outPic);
+                            getContrast();
                             break;
                         case 2:
                             tag = process.spin(inPic, out outPic);
@@ -127,7 +130,11 @@ namespace bmpProcess
                     }
                     if (tag)
                     {
-                        this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        //this.outPicBox.Image = Image.FromStream(outPic.fs);
+                        this.outPicBox.Image = process.ReturnPhoto(outPic);
+                        int end = System.Environment.TickCount;
+                        this.timeBox.Text = (end - start).ToString();
+                        getContrast();
                         isRshow = true;
                         outPic.fs.Close();
                     }
@@ -225,7 +232,12 @@ namespace bmpProcess
         {
             try
             {
-                double[,] filter = { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
+                //double[,] filter = { {0,1,0},
+                //                   {1,4,1},
+                //                   {0,1,0}};
+                double[,] filter = { {1,1,1},
+                                   {1,1,1},
+                                   {1,1,1}};
                 this.outPicBox.Image = process.weightFilter(inPic, filter);
                 getContrast();
             }
@@ -239,7 +251,10 @@ namespace bmpProcess
         {
             try
             {
-                double[,] filter = { { 1,1,1}, {1,0,1}, {1,1,1} };
+                //double[,] filter = { {0,1,0},
+                //                   {1,8,1},
+                //                   {0,1,0}};
+                double[,] filter = { { 1, 2, 1 }, { 2, 4, 2 }, { 1, 2, 1 } };
                 this.outPicBox.Image = process.weightFilter(inPic, filter);
                 getContrast();
             }
@@ -253,7 +268,7 @@ namespace bmpProcess
         {
             try
             {
-                int size = 5;
+                int size = 3;
                 this.outPicBox.Image = process.medianFilter1D(inPic, size);
                 getContrast();
             }
@@ -267,7 +282,7 @@ namespace bmpProcess
         {
             try
             {
-                int size = 5;
+                int size = 3;
                 this.outPicBox.Image = process.medianFilter2D(inPic, size);
                 getContrast();
             }
@@ -283,7 +298,7 @@ namespace bmpProcess
             {
                 if (this.inPicBox.Image != null)
                 {
-                    double contrast1 = process.contrast(inPic, 1);
+                    double contrast1 = process.contrast(inPic, 2);
                     this.textBox2.Text = contrast1.ToString();
                 }
                 if (this.outPicBox.Image != null)
@@ -297,7 +312,7 @@ namespace bmpProcess
                     FileStream tempFs = new FileStream(file, FileMode.Open, FileAccess.ReadWrite);
                     outPic.getData(tempFs);
                     tempFs.Close();
-                    double contrast2 = process.contrast(outPic, 1);
+                    double contrast2 = process.contrast(outPic, 2);
                     this.textBox3.Text = contrast2.ToString();
                 }
 
@@ -307,6 +322,155 @@ namespace bmpProcess
                 MessageBox.Show(ex.Message);
             }
         }
+
+        private void KNN_Butt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int size = 3;
+                int start = System.Environment.TickCount;
+                this.outPicBox.Image = process.KNN(inPic, size);
+                int end = System.Environment.TickCount;
+                this.timeBox.Text = (end - start).ToString();
+                getContrast();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void SymmetricFilterButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int start = System.Environment.TickCount;
+                this.outPicBox.Image = process.SymmetricNFilter(inPic);
+                int end = System.Environment.TickCount;
+                this.timeBox.Text = (end - start).ToString();
+                getContrast();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void sigmaButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int start = System.Environment.TickCount;
+                this.outPicBox.Image = process.sigmaFilter(inPic,3);
+                int end = System.Environment.TickCount;
+                this.timeBox.Text = (end - start).ToString();
+                getContrast();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        //锐化一般性入口
+        private void sharpening(double[,] filter)
+        {
+            try
+            {
+                int start = System.Environment.TickCount;
+                this.outPicBox.Image = process.sharpening(inPic, filter);
+                int end = System.Environment.TickCount;
+                this.timeBox.Text = (end - start).ToString();
+                getContrast();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        
+        private void levelSharpButt_Click(object sender, EventArgs e)
+        {
+            double[,] filter = { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
+            sharpening(filter);
+        }
+
+        private void verSharpButt_Click(object sender, EventArgs e)
+        {
+            double[,] filter = { { 1, 0, -1 }, { 2, 0, -2 }, { 1, 0, -1 } };
+            sharpening(filter);
+        }
+
+        private void crossDiffSharpButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int start = System.Environment.TickCount;
+                this.outPicBox.Image = process.crossDiffSharpening(inPic);
+                int end = System.Environment.TickCount;
+                this.timeBox.Text = (end - start).ToString();
+                getContrast();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void laplaceSharpButt1_Click(object sender, EventArgs e)
+        {
+            double[,] filter = { { 0, -1, 0 }, { -1, 4, -1 }, { 0, -1, 0 } };
+            sharpening(filter);
+        }
+
+        private void laplaceSharpButt2_Click(object sender, EventArgs e)
+        {
+            double[,] filter = { { -1, -1, -1 }, 
+                                { -1, 8, -1 }, 
+                                { -1, -1, -1 } };
+            sharpening(filter);
+        }
+
+        private void laplaceSharpButt3_Click(object sender, EventArgs e)
+        {
+            double[,] filter = { { 1, -2, 1 }, 
+                                { -2, 4, -2 }, 
+                                { 1, -2, 1 } };
+            sharpening(filter);
+        }
+
+        private void laplaceSharpButt4_Click(object sender, EventArgs e)
+        {
+            double[,] filter = { { 0, -1, 0 }, 
+                                { -1, 5, -1 }, 
+                                { 0, -1, 0 } };
+            sharpening(filter);
+        }
+
+        private void LoGSharpButt_Click(object sender, EventArgs e)
+        {
+            double[,] filter = { { 0, 0, -1, 0, 0 }, 
+                               { 0, -1, -2, -1, 0 }, 
+                               { -1, -2, 16, -2, -1 }, 
+                               { 0, -1, -2, -1, 0 }, 
+                               { 0, 0, -1, 0, 0 } };
+            sharpening(filter);
+        }
+
+        private void wallisSharpButt_Click(object sender, EventArgs e)
+        {
+            double[,] filter = { { 0, -0.25, 0 }, 
+                                { -0.25, 1, -0.25 }, 
+                                { 0, -0.25, 0 } };
+            sharpening(filter);
+        }
+
+
 
     }
 }

@@ -221,9 +221,9 @@
             // 
             // openGeo
             // 
-            this.openGeo.Location = new System.Drawing.Point(824, 25);
+            this.openGeo.Location = new System.Drawing.Point(799, 25);
             this.openGeo.Name = "openGeo";
-            this.openGeo.Size = new System.Drawing.Size(125, 30);
+            this.openGeo.Size = new System.Drawing.Size(150, 30);
             this.openGeo.TabIndex = 18;
             this.openGeo.Text = "几何/空域/滤波";
             this.openGeo.UseVisualStyleBackColor = true;

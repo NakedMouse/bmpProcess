@@ -895,6 +895,11 @@ namespace bmpProcess
             return ReturnPhoto(outPic);
         }
 
+        /**
+         * 以下为滤波器部分，包括平滑滤波器、边界保持类滤波器、图像锐化滤波器
+         * 
+        **/
+
         /// <summary>
         /// 加权滤波器，请输入一个矩形二维数组
         /// </summary>
@@ -918,6 +923,7 @@ namespace bmpProcess
                     sum += filter[i, j];
                 }
             }
+            if (sum == 0) sum = 1;
             double[] temp = new double[channels];
 
             //h、w表示现在处理的像素点
@@ -1040,7 +1046,6 @@ namespace bmpProcess
             return ReturnPhoto(outPic);
         }
 
-
         /// <summary>
         /// 返回图像对比度，mode==1为4近邻，mode==2为8近邻
         /// </summary>
@@ -1048,6 +1053,7 @@ namespace bmpProcess
         /// <param name="mode"></param>
         /// <returns></returns>
         //返回图像对比度
+        //对参考文件的算法进行了一点修改，可以适应单色\多色图像
         public static double contrast(process inPic, int mode)
         {
             int width = (int)inPic.infoHader.biWidth;
@@ -1121,7 +1127,294 @@ namespace bmpProcess
 
             return result / channels / num;
         }
-    
-    
+
+        private static void sort(ref int[,] array)
+        {
+            int size = array.Length/2;
+
+            for (int i = 0; i < size-1 ; i++)
+            {
+                for (int j = i+1; j < size; j++)
+                {
+                    if (array[i,0] > array[j,0])
+                    {
+                        int temp = array[i,0];
+                        array[i,0] = array[j,0];
+                        array[j,0] = temp;
+                        temp = array[i, 1];
+                        array[i, 1] = array[j, 1];
+                        array[j, 1] = temp;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// KNN-K近邻平滑滤波器
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        //K近邻平滑滤波器
+        public static System.Drawing.Image KNN(process inPic, int size)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+
+            int k = (int)((double)(size / 2) + 1);
+            int broundLimit = size / 2;
+            uint channels = outPic.infoHader.channels;
+            int[][,] temp = new int[channels][,];
+            for (int i = 0; i < channels; i++)
+            {   //初始化数组
+                temp[i] = new int[size * size,2];
+            }
+
+            for (int h = broundLimit; h < outPic.infoHader.biHeight - broundLimit; h++)
+            {
+                int hLow = h - broundLimit;
+                for (int w = broundLimit; w < outPic.infoHader.biWidth - broundLimit; w++)
+                {
+                    int wLow = w - broundLimit;
+                    int[] mid = new int[channels];
+                    for(int i=0;i<channels;i++)
+                    {
+                        mid[i] =  outPic.pixelData[h * outPic.infoHader.l_width + w * channels + i];
+                    }
+                    int index = 0;
+
+                    for (int i = hLow; i < h + broundLimit; i++)
+                    {
+                        for (int j = wLow; j < w + broundLimit; j++)
+                        {
+                            for (int l = 0; l < channels; l++)
+                            {
+                                temp[l][index, 1] = outPic.pixelData[i * outPic.infoHader.l_width + j * channels + l];
+                                temp[l][index, 0] = Math.Abs(mid[l] - outPic.pixelData[i * outPic.infoHader.l_width + j * channels + l]);
+                            }
+                            index++;
+                        }
+                    }
+                    for (int i = 0; i < channels; i++)
+                    {
+                        sort(ref temp[i]);
+                        int sum = 0;
+                        for (int j = 0; j < k; j++)
+                        {
+                            sum += temp[i][j, 1];
+                        }
+                        outPic.pixelData[h * outPic.infoHader.l_width + w * channels + i] = (byte)(sum / k + 0.5);
+                    }
+
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
+
+        /// <summary>
+        /// 对称近邻平滑滤波器
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <returns></returns>
+        //对称近邻平滑滤波器
+        public static System.Drawing.Image SymmetricNFilter(process inPic)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+            uint channels = inPic.infoHader.channels;
+            int[] sum = new int[channels];
+
+            for (int h = 1; h < inPic.infoHader.biHeight - 1; h++)
+            {
+                for (int w = 1; w < inPic.infoHader.biWidth - 1; w++)
+                {
+                    for (int i = -1; i < 2; i++)
+                    {
+                        for (int k = 0; k < channels; k++)
+                        {
+                            int a = inPic.pixelData[(h - 1) * inPic.infoHader.l_width + (w + i) * channels + k];
+                            int b = inPic.pixelData[(h + 1) * inPic.infoHader.l_width + (w - i) * channels + k];
+                            int aError = Math.Abs(a - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
+                            int bError = Math.Abs(b - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
+                            sum[k] += (aError > bError) ? b : a;
+                        }
+                    }
+                    for (int k = 0; k < channels; k++)
+                    {
+                        int a = inPic.pixelData[h * inPic.infoHader.l_width + (w + 1) * channels + k];
+                        int b = inPic.pixelData[h * inPic.infoHader.l_width + (w - 1) * channels + k];
+                        int aError = Math.Abs(a - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
+                        int bError = Math.Abs(b - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
+                        sum[k] += (aError > bError) ? b : a;
+                        sum[k] += inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k];
+                        outPic.pixelData[h * outPic.infoHader.l_width + w * channels + k] = (byte)(sum[k] / 5 + 0.5);
+                        sum[k] = 0;
+                    }
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
+   
+        /// <summary>
+        /// 最小均方误差滤波器，9个模板
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <returns></returns>
+        //最小均方误差滤波器，9个模板
+        //public static System.Drawing.Image LMS(process inPic)
+
+        /// <summary>
+        /// sigma滤波器
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        //sigma滤波器
+        public static System.Drawing.Image sigmaFilter(process inPic,int size)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+            int broundLimit = size / 2;
+            uint channels = inPic.infoHader.channels;
+            int[][] temp = new int[channels][];
+            for (int i = 0; i < channels; i++)
+            {
+                temp[i] = new int[size * size];
+            }
+
+            for (int h = broundLimit; h < inPic.infoHader.biHeight - broundLimit; h++)
+            {
+                int hLow = h - broundLimit;
+                for (int w = broundLimit; w < inPic.infoHader.biWidth - broundLimit; w++)
+                {
+                    int wLow = w - broundLimit;
+                    for (int i = hLow; i <= h + broundLimit; i++)
+                    {
+                        for (int j = wLow; j <= w + broundLimit; j++)
+                        {
+                            for (int k = 0; k < channels; k++)
+                            {
+                                temp[k][(i - hLow) * size + (j - wLow)] = inPic.pixelData[i * inPic.infoHader.l_width + j * channels + k];
+                            }
+                        }
+                    }
+
+                    //计算新的像素值
+                   
+                    for (int i = 0; i < channels; i++)
+                    {
+                        double avg = 0;
+                        double sigma = 0;
+                        //for (int j = 0; j < size * size; j++)
+                        //{
+                        //    avg += temp[i][j];
+                        //}
+                        //avg /= (size * size);
+                        avg = temp[i][(size * size / 2)];
+                        for (int j = 0; j < size * size; j++)
+                        {
+                            sigma += Math.Pow(temp[i][j] - avg, 2);
+                        }
+                        sigma= Math.Sqrt(sigma / (size * size));
+                        avg = 0;
+                        int count = 0;
+                        for (int j = 0; j < size * size; j++)
+                        {
+                            if (j == (size * size / 2))
+                            {
+                                count++;
+                                avg += temp[i][j];
+                                continue;
+                            }
+                            if (Math.Abs(temp[i][j] - temp[i][(int)(size * size / 2 )]) < (2 * sigma))
+                            {
+                                count++;
+                                avg += temp[i][j];
+                            }
+                        }
+                        int result = (int)(avg / count + 0.5);
+                        if(result <0 ) result=0;
+                        if(result>255) result=255;
+                        outPic.pixelData[h * inPic.infoHader.l_width + w * channels + i] = (byte)result;
+                    }
+                }
+            }
+            return ReturnPhoto(outPic);
+        }
+
+        /// <summary>
+        /// 锐化滤波器，请输入滤波模板
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        //锐化滤波器，请输入滤波模板
+        public static System.Drawing.Image sharpening(process inPic, double[,] filter)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+            int size = filter.GetLength(0);
+            int broundLimit = size / 2;
+            uint channels = inPic.infoHader.channels;
+
+            for (int h = broundLimit; h < inPic.infoHader.biHeight - broundLimit; h++)
+            {
+                int hLow = h - broundLimit;
+                for (int w = broundLimit; w < inPic.infoHader.biWidth - broundLimit; w++)
+                {
+                    int wLow = w - broundLimit;
+                    for (int k = 0; k < channels; k++)
+                    {
+                        double sum = 0;
+                        for (int i = hLow; i <= h + broundLimit; i++)
+                        {
+                            for (int j = wLow; j <= w + broundLimit; j++)
+                            {
+                                int temp = inPic.pixelData[i * inPic.infoHader.l_width + j * channels + k];
+                                sum += filter[i - hLow, j - wLow] * temp; 
+                            }
+                        }
+                        sum = Math.Abs(sum);
+                        if (sum > 255) sum = 255;
+                        outPic.pixelData[h * inPic.infoHader.l_width + w * channels + k] = (byte)sum;
+                    }
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
+
+
+        /// <summary>
+        /// 交叉微分算法锐化
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <returns></returns>
+        //交叉微分算法锐化
+        public static System.Drawing.Image crossDiffSharpening(process inPic)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+            uint channels = inPic.infoHader.channels;
+            uint l_width = inPic.infoHader.l_width;
+
+            for (int h = 0; h < inPic.infoHader.biHeight-1; h++)
+            {
+                for (int w = 0; w < inPic.infoHader.biWidth - 1; w++)
+                {
+                    for(int k = 0; k < channels; k++){
+                        int result = 0;
+                        result = Math.Abs(inPic.pixelData[(h + 1) * l_width + (w + 1) * channels + k] - inPic.pixelData[h * l_width + w * channels + k]);
+                        result += Math.Abs(inPic.pixelData[h * l_width + (w + 1) * channels + k] - inPic.pixelData[(h + 1) * l_width + w * channels + k]);
+                        if (result > 255) result = 255;
+                        outPic.pixelData[h * l_width + w * channels + k] = (byte)result;
+                    }
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
     }
 }

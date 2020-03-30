@@ -47,6 +47,9 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.sigmaButt = new System.Windows.Forms.Button();
+            this.SymmetricFilterButt = new System.Windows.Forms.Button();
+            this.KNN_Butt = new System.Windows.Forms.Button();
             this.avgFilterButt = new System.Windows.Forms.Button();
             this.weightFilterButt = new System.Windows.Forms.Button();
             this.midFilterButt = new System.Windows.Forms.Button();
@@ -55,11 +58,25 @@
             this.label2 = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
+            this.timeBox = new System.Windows.Forms.TextBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.wallisSharpButt = new System.Windows.Forms.Button();
+            this.LoGSharpButt = new System.Windows.Forms.Button();
+            this.laplaceSharpButt4 = new System.Windows.Forms.Button();
+            this.laplaceSharpButt3 = new System.Windows.Forms.Button();
+            this.laplaceSharpButt2 = new System.Windows.Forms.Button();
+            this.laplaceSharpButt1 = new System.Windows.Forms.Button();
+            this.priwittSharpButt = new System.Windows.Forms.Button();
+            this.levelSharpButt = new System.Windows.Forms.Button();
+            this.verSharpButt = new System.Windows.Forms.Button();
+            this.crossDiffSharpButt = new System.Windows.Forms.Button();
+            this.sobelSharpButt = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // geoOpenIn
@@ -75,7 +92,7 @@
             // 
             // outPicBox
             // 
-            this.outPicBox.Location = new System.Drawing.Point(654, 101);
+            this.outPicBox.Location = new System.Drawing.Point(751, 101);
             this.outPicBox.Name = "outPicBox";
             this.outPicBox.Size = new System.Drawing.Size(400, 450);
             this.outPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -105,7 +122,7 @@
             // spinButt
             // 
             this.spinButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.spinButt.Location = new System.Drawing.Point(124, 24);
+            this.spinButt.Location = new System.Drawing.Point(112, 24);
             this.spinButt.Name = "spinButt";
             this.spinButt.Size = new System.Drawing.Size(100, 30);
             this.spinButt.TabIndex = 9;
@@ -116,7 +133,7 @@
             // enlargeButt
             // 
             this.enlargeButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.enlargeButt.Location = new System.Drawing.Point(6, 60);
+            this.enlargeButt.Location = new System.Drawing.Point(218, 24);
             this.enlargeButt.Name = "enlargeButt";
             this.enlargeButt.Size = new System.Drawing.Size(100, 30);
             this.enlargeButt.TabIndex = 10;
@@ -127,7 +144,7 @@
             // narrowButt
             // 
             this.narrowButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.narrowButt.Location = new System.Drawing.Point(124, 60);
+            this.narrowButt.Location = new System.Drawing.Point(324, 24);
             this.narrowButt.Name = "narrowButt";
             this.narrowButt.Size = new System.Drawing.Size(100, 30);
             this.narrowButt.TabIndex = 11;
@@ -138,7 +155,7 @@
             // mirrorButt
             // 
             this.mirrorButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.mirrorButt.Location = new System.Drawing.Point(6, 96);
+            this.mirrorButt.Location = new System.Drawing.Point(430, 24);
             this.mirrorButt.Name = "mirrorButt";
             this.mirrorButt.Size = new System.Drawing.Size(100, 30);
             this.mirrorButt.TabIndex = 12;
@@ -160,7 +177,7 @@
             // nonlinearExpandButt1
             // 
             this.nonlinearExpandButt1.Cursor = System.Windows.Forms.Cursors.Default;
-            this.nonlinearExpandButt1.Location = new System.Drawing.Point(124, 24);
+            this.nonlinearExpandButt1.Location = new System.Drawing.Point(112, 24);
             this.nonlinearExpandButt1.Name = "nonlinearExpandButt1";
             this.nonlinearExpandButt1.Size = new System.Drawing.Size(100, 30);
             this.nonlinearExpandButt1.TabIndex = 14;
@@ -171,7 +188,7 @@
             // histogramAvgButt
             // 
             this.histogramAvgButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.histogramAvgButt.Location = new System.Drawing.Point(124, 60);
+            this.histogramAvgButt.Location = new System.Drawing.Point(6, 60);
             this.histogramAvgButt.Name = "histogramAvgButt";
             this.histogramAvgButt.Size = new System.Drawing.Size(100, 30);
             this.histogramAvgButt.TabIndex = 15;
@@ -182,7 +199,7 @@
             // colorButt
             // 
             this.colorButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.colorButt.Location = new System.Drawing.Point(6, 96);
+            this.colorButt.Location = new System.Drawing.Point(112, 60);
             this.colorButt.Name = "colorButt";
             this.colorButt.Size = new System.Drawing.Size(100, 30);
             this.colorButt.TabIndex = 16;
@@ -214,7 +231,7 @@
             // nonlinearExpandButt2
             // 
             this.nonlinearExpandButt2.Cursor = System.Windows.Forms.Cursors.Default;
-            this.nonlinearExpandButt2.Location = new System.Drawing.Point(6, 60);
+            this.nonlinearExpandButt2.Location = new System.Drawing.Point(218, 24);
             this.nonlinearExpandButt2.Name = "nonlinearExpandButt2";
             this.nonlinearExpandButt2.Size = new System.Drawing.Size(100, 30);
             this.nonlinearExpandButt2.TabIndex = 19;
@@ -240,9 +257,9 @@
             this.groupBox1.Controls.Add(this.enlargeButt);
             this.groupBox1.Controls.Add(this.narrowButt);
             this.groupBox1.Controls.Add(this.mirrorButt);
-            this.groupBox1.Location = new System.Drawing.Point(418, 101);
+            this.groupBox1.Location = new System.Drawing.Point(485, 24);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(230, 130);
+            this.groupBox1.Size = new System.Drawing.Size(544, 71);
             this.groupBox1.TabIndex = 21;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "几何处理";
@@ -254,25 +271,61 @@
             this.groupBox2.Controls.Add(this.nonlinearExpandButt2);
             this.groupBox2.Controls.Add(this.histogramAvgButt);
             this.groupBox2.Controls.Add(this.colorButt);
-            this.groupBox2.Location = new System.Drawing.Point(418, 249);
+            this.groupBox2.Location = new System.Drawing.Point(418, 101);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(230, 138);
+            this.groupBox2.Size = new System.Drawing.Size(327, 100);
             this.groupBox2.TabIndex = 22;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "空域处理";
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.sigmaButt);
+            this.groupBox3.Controls.Add(this.SymmetricFilterButt);
+            this.groupBox3.Controls.Add(this.KNN_Butt);
             this.groupBox3.Controls.Add(this.avgFilterButt);
             this.groupBox3.Controls.Add(this.weightFilterButt);
             this.groupBox3.Controls.Add(this.midFilterButt);
             this.groupBox3.Controls.Add(this.medianFilter2DButt);
-            this.groupBox3.Location = new System.Drawing.Point(418, 393);
+            this.groupBox3.Location = new System.Drawing.Point(418, 207);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(230, 100);
+            this.groupBox3.Size = new System.Drawing.Size(327, 135);
             this.groupBox3.TabIndex = 23;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "滤波处理";
+            this.groupBox3.Text = "平滑处理";
+            // 
+            // sigmaButt
+            // 
+            this.sigmaButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.sigmaButt.Location = new System.Drawing.Point(6, 96);
+            this.sigmaButt.Name = "sigmaButt";
+            this.sigmaButt.Size = new System.Drawing.Size(100, 30);
+            this.sigmaButt.TabIndex = 22;
+            this.sigmaButt.Text = "Sigma";
+            this.sigmaButt.UseVisualStyleBackColor = true;
+            this.sigmaButt.Click += new System.EventHandler(this.sigmaButt_Click);
+            // 
+            // SymmetricFilterButt
+            // 
+            this.SymmetricFilterButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.SymmetricFilterButt.Location = new System.Drawing.Point(218, 60);
+            this.SymmetricFilterButt.Name = "SymmetricFilterButt";
+            this.SymmetricFilterButt.Size = new System.Drawing.Size(100, 30);
+            this.SymmetricFilterButt.TabIndex = 21;
+            this.SymmetricFilterButt.Text = "对称近邻";
+            this.SymmetricFilterButt.UseVisualStyleBackColor = true;
+            this.SymmetricFilterButt.Click += new System.EventHandler(this.SymmetricFilterButt_Click);
+            // 
+            // KNN_Butt
+            // 
+            this.KNN_Butt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.KNN_Butt.Location = new System.Drawing.Point(112, 60);
+            this.KNN_Butt.Name = "KNN_Butt";
+            this.KNN_Butt.Size = new System.Drawing.Size(100, 30);
+            this.KNN_Butt.TabIndex = 20;
+            this.KNN_Butt.Text = "KNN滤波";
+            this.KNN_Butt.UseVisualStyleBackColor = true;
+            this.KNN_Butt.Click += new System.EventHandler(this.KNN_Butt_Click);
             // 
             // avgFilterButt
             // 
@@ -288,7 +341,7 @@
             // weightFilterButt
             // 
             this.weightFilterButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.weightFilterButt.Location = new System.Drawing.Point(124, 24);
+            this.weightFilterButt.Location = new System.Drawing.Point(112, 24);
             this.weightFilterButt.Name = "weightFilterButt";
             this.weightFilterButt.Size = new System.Drawing.Size(100, 30);
             this.weightFilterButt.TabIndex = 14;
@@ -299,7 +352,7 @@
             // midFilterButt
             // 
             this.midFilterButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.midFilterButt.Location = new System.Drawing.Point(6, 60);
+            this.midFilterButt.Location = new System.Drawing.Point(218, 24);
             this.midFilterButt.Name = "midFilterButt";
             this.midFilterButt.Size = new System.Drawing.Size(100, 30);
             this.midFilterButt.TabIndex = 19;
@@ -310,7 +363,7 @@
             // medianFilter2DButt
             // 
             this.medianFilter2DButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.medianFilter2DButt.Location = new System.Drawing.Point(124, 60);
+            this.medianFilter2DButt.Location = new System.Drawing.Point(6, 60);
             this.medianFilter2DButt.Name = "medianFilter2DButt";
             this.medianFilter2DButt.Size = new System.Drawing.Size(100, 30);
             this.medianFilter2DButt.TabIndex = 15;
@@ -330,7 +383,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(781, 560);
+            this.label2.Location = new System.Drawing.Point(856, 563);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 15);
             this.label2.TabIndex = 27;
@@ -347,16 +400,168 @@
             // textBox3
             // 
             this.textBox3.Enabled = false;
-            this.textBox3.Location = new System.Drawing.Point(854, 557);
+            this.textBox3.Location = new System.Drawing.Point(929, 560);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 25);
             this.textBox3.TabIndex = 29;
+            // 
+            // timeBox
+            // 
+            this.timeBox.Enabled = false;
+            this.timeBox.Location = new System.Drawing.Point(469, 586);
+            this.timeBox.Name = "timeBox";
+            this.timeBox.Size = new System.Drawing.Size(99, 25);
+            this.timeBox.TabIndex = 30;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.wallisSharpButt);
+            this.groupBox4.Controls.Add(this.LoGSharpButt);
+            this.groupBox4.Controls.Add(this.laplaceSharpButt4);
+            this.groupBox4.Controls.Add(this.laplaceSharpButt3);
+            this.groupBox4.Controls.Add(this.laplaceSharpButt2);
+            this.groupBox4.Controls.Add(this.laplaceSharpButt1);
+            this.groupBox4.Controls.Add(this.priwittSharpButt);
+            this.groupBox4.Controls.Add(this.levelSharpButt);
+            this.groupBox4.Controls.Add(this.verSharpButt);
+            this.groupBox4.Controls.Add(this.crossDiffSharpButt);
+            this.groupBox4.Controls.Add(this.sobelSharpButt);
+            this.groupBox4.Location = new System.Drawing.Point(418, 348);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(327, 203);
+            this.groupBox4.TabIndex = 31;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "锐化处理";
+            // 
+            // wallisSharpButt
+            // 
+            this.wallisSharpButt.AutoSize = true;
+            this.wallisSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.wallisSharpButt.Location = new System.Drawing.Point(112, 132);
+            this.wallisSharpButt.Name = "wallisSharpButt";
+            this.wallisSharpButt.Size = new System.Drawing.Size(100, 30);
+            this.wallisSharpButt.TabIndex = 26;
+            this.wallisSharpButt.Text = "Wallis";
+            this.wallisSharpButt.UseVisualStyleBackColor = true;
+            this.wallisSharpButt.Click += new System.EventHandler(this.wallisSharpButt_Click);
+            // 
+            // LoGSharpButt
+            // 
+            this.LoGSharpButt.AutoSize = true;
+            this.LoGSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.LoGSharpButt.Location = new System.Drawing.Point(6, 132);
+            this.LoGSharpButt.Name = "LoGSharpButt";
+            this.LoGSharpButt.Size = new System.Drawing.Size(100, 30);
+            this.LoGSharpButt.TabIndex = 25;
+            this.LoGSharpButt.Text = "LoG";
+            this.LoGSharpButt.UseVisualStyleBackColor = true;
+            this.LoGSharpButt.Click += new System.EventHandler(this.LoGSharpButt_Click);
+            // 
+            // laplaceSharpButt4
+            // 
+            this.laplaceSharpButt4.Cursor = System.Windows.Forms.Cursors.Default;
+            this.laplaceSharpButt4.Location = new System.Drawing.Point(218, 96);
+            this.laplaceSharpButt4.Name = "laplaceSharpButt4";
+            this.laplaceSharpButt4.Size = new System.Drawing.Size(100, 30);
+            this.laplaceSharpButt4.TabIndex = 24;
+            this.laplaceSharpButt4.Text = "Laplace H4";
+            this.laplaceSharpButt4.UseVisualStyleBackColor = true;
+            this.laplaceSharpButt4.Click += new System.EventHandler(this.laplaceSharpButt4_Click);
+            // 
+            // laplaceSharpButt3
+            // 
+            this.laplaceSharpButt3.Cursor = System.Windows.Forms.Cursors.Default;
+            this.laplaceSharpButt3.Location = new System.Drawing.Point(112, 96);
+            this.laplaceSharpButt3.Name = "laplaceSharpButt3";
+            this.laplaceSharpButt3.Size = new System.Drawing.Size(100, 30);
+            this.laplaceSharpButt3.TabIndex = 23;
+            this.laplaceSharpButt3.Text = "Laplace H3";
+            this.laplaceSharpButt3.UseVisualStyleBackColor = true;
+            this.laplaceSharpButt3.Click += new System.EventHandler(this.laplaceSharpButt3_Click);
+            // 
+            // laplaceSharpButt2
+            // 
+            this.laplaceSharpButt2.Cursor = System.Windows.Forms.Cursors.Default;
+            this.laplaceSharpButt2.Location = new System.Drawing.Point(6, 96);
+            this.laplaceSharpButt2.Name = "laplaceSharpButt2";
+            this.laplaceSharpButt2.Size = new System.Drawing.Size(100, 30);
+            this.laplaceSharpButt2.TabIndex = 22;
+            this.laplaceSharpButt2.Text = "Laplace H2";
+            this.laplaceSharpButt2.UseVisualStyleBackColor = true;
+            this.laplaceSharpButt2.Click += new System.EventHandler(this.laplaceSharpButt2_Click);
+            // 
+            // laplaceSharpButt1
+            // 
+            this.laplaceSharpButt1.Cursor = System.Windows.Forms.Cursors.Default;
+            this.laplaceSharpButt1.Location = new System.Drawing.Point(218, 60);
+            this.laplaceSharpButt1.Name = "laplaceSharpButt1";
+            this.laplaceSharpButt1.Size = new System.Drawing.Size(100, 30);
+            this.laplaceSharpButt1.TabIndex = 21;
+            this.laplaceSharpButt1.Text = "Laplace H1";
+            this.laplaceSharpButt1.UseVisualStyleBackColor = true;
+            this.laplaceSharpButt1.Click += new System.EventHandler(this.laplaceSharpButt1_Click);
+            // 
+            // priwittSharpButt
+            // 
+            this.priwittSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.priwittSharpButt.Location = new System.Drawing.Point(112, 60);
+            this.priwittSharpButt.Name = "priwittSharpButt";
+            this.priwittSharpButt.Size = new System.Drawing.Size(100, 30);
+            this.priwittSharpButt.TabIndex = 20;
+            this.priwittSharpButt.Text = "Priwitt";
+            this.priwittSharpButt.UseVisualStyleBackColor = true;
+            // 
+            // levelSharpButt
+            // 
+            this.levelSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.levelSharpButt.Location = new System.Drawing.Point(6, 24);
+            this.levelSharpButt.Name = "levelSharpButt";
+            this.levelSharpButt.Size = new System.Drawing.Size(100, 30);
+            this.levelSharpButt.TabIndex = 13;
+            this.levelSharpButt.Text = "水平一阶";
+            this.levelSharpButt.UseVisualStyleBackColor = true;
+            this.levelSharpButt.Click += new System.EventHandler(this.levelSharpButt_Click);
+            // 
+            // verSharpButt
+            // 
+            this.verSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.verSharpButt.Location = new System.Drawing.Point(112, 24);
+            this.verSharpButt.Name = "verSharpButt";
+            this.verSharpButt.Size = new System.Drawing.Size(100, 30);
+            this.verSharpButt.TabIndex = 14;
+            this.verSharpButt.Text = "垂直一阶";
+            this.verSharpButt.UseVisualStyleBackColor = true;
+            this.verSharpButt.Click += new System.EventHandler(this.verSharpButt_Click);
+            // 
+            // crossDiffSharpButt
+            // 
+            this.crossDiffSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.crossDiffSharpButt.Location = new System.Drawing.Point(218, 24);
+            this.crossDiffSharpButt.Name = "crossDiffSharpButt";
+            this.crossDiffSharpButt.Size = new System.Drawing.Size(100, 30);
+            this.crossDiffSharpButt.TabIndex = 19;
+            this.crossDiffSharpButt.Text = "交叉微分";
+            this.crossDiffSharpButt.UseVisualStyleBackColor = true;
+            this.crossDiffSharpButt.Click += new System.EventHandler(this.crossDiffSharpButt_Click);
+            // 
+            // sobelSharpButt
+            // 
+            this.sobelSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.sobelSharpButt.Location = new System.Drawing.Point(6, 60);
+            this.sobelSharpButt.Name = "sobelSharpButt";
+            this.sobelSharpButt.Size = new System.Drawing.Size(100, 30);
+            this.sobelSharpButt.TabIndex = 15;
+            this.sobelSharpButt.Text = "Sobel方法";
+            this.sobelSharpButt.UseVisualStyleBackColor = true;
             // 
             // Geo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1066, 614);
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(1170, 623);
+            this.Controls.Add(this.groupBox4);
+            this.Controls.Add(this.timeBox);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.label2);
@@ -379,6 +584,8 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -413,5 +620,21 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.Button KNN_Butt;
+        private System.Windows.Forms.TextBox timeBox;
+        private System.Windows.Forms.Button SymmetricFilterButt;
+        private System.Windows.Forms.Button sigmaButt;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Button laplaceSharpButt2;
+        private System.Windows.Forms.Button laplaceSharpButt1;
+        private System.Windows.Forms.Button priwittSharpButt;
+        private System.Windows.Forms.Button levelSharpButt;
+        private System.Windows.Forms.Button verSharpButt;
+        private System.Windows.Forms.Button crossDiffSharpButt;
+        private System.Windows.Forms.Button sobelSharpButt;
+        private System.Windows.Forms.Button LoGSharpButt;
+        private System.Windows.Forms.Button laplaceSharpButt4;
+        private System.Windows.Forms.Button laplaceSharpButt3;
+        private System.Windows.Forms.Button wallisSharpButt;
     }
 }
