@@ -410,7 +410,7 @@ namespace bmpProcess
             try
             {
                 int start = System.Environment.TickCount;
-                this.outPicBox.Image = process.crossDiffSharpening(inPic);
+                this.outPicBox.Image = process.RobertsSharpening(inPic);
                 int end = System.Environment.TickCount;
                 this.timeBox.Text = (end - start).ToString();
                 getContrast();
@@ -468,6 +468,42 @@ namespace bmpProcess
                                 { -0.25, 1, -0.25 }, 
                                 { 0, -0.25, 0 } };
             sharpening(filter);
+        }
+
+        private void sobelSharpButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int start = System.Environment.TickCount;
+                double[,] filter = { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
+                this.outPicBox.Image = process.nonDirecSharpening(inPic,filter);
+                int end = System.Environment.TickCount;
+                this.timeBox.Text = (end - start).ToString();
+                getContrast();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void priwittSharpButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int start = System.Environment.TickCount;
+                double[,] filter = { { -1, 0, 1 }, { -1, 0, 1 }, { -1, 0, 1 } };
+                this.outPicBox.Image = process.nonDirecSharpening(inPic, filter);
+                int end = System.Environment.TickCount;
+                this.timeBox.Text = (end - start).ToString();
+                getContrast();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
 

@@ -510,6 +510,7 @@
             this.priwittSharpButt.TabIndex = 20;
             this.priwittSharpButt.Text = "Priwitt";
             this.priwittSharpButt.UseVisualStyleBackColor = true;
+            this.priwittSharpButt.Click += new System.EventHandler(this.priwittSharpButt_Click);
             // 
             // levelSharpButt
             // 
@@ -553,6 +554,7 @@
             this.sobelSharpButt.TabIndex = 15;
             this.sobelSharpButt.Text = "Sobel方法";
             this.sobelSharpButt.UseVisualStyleBackColor = true;
+            this.sobelSharpButt.Click += new System.EventHandler(this.sobelSharpButt_Click);
             // 
             // Geo
             // 

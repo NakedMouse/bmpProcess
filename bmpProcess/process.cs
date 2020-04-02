@@ -1132,21 +1132,25 @@ namespace bmpProcess
         {
             int size = array.Length/2;
 
-            for (int i = 0; i < size-1 ; i++)
+            for (int i = 0; i < size - 1; i++)
             {
-                for (int j = i+1; j < size; j++)
+                int c = i;
+                for (int j = i + 1; j < size; j++)
                 {
-                    if (array[i,0] > array[j,0])
+                    if (array[c, 0] > array[j, 0])
                     {
-                        int temp = array[i,0];
-                        array[i,0] = array[j,0];
-                        array[j,0] = temp;
-                        temp = array[i, 1];
-                        array[i, 1] = array[j, 1];
-                        array[j, 1] = temp;
+                        c = j;
                     }
                 }
+                int temp = array[i, 0];
+                array[i, 0] = array[c, 0];
+                array[c, 0] = temp;
+                temp = array[i, 1];
+                array[i, 1] = array[c, 1];
+                array[c, 1] = temp;
             }
+
+            //array[size-1, 1] = 50;
         }
 
         /// <summary>
@@ -1161,51 +1165,37 @@ namespace bmpProcess
             process outPic = new process();
             copy(inPic, out outPic);
 
-            int k = (int)((double)(size / 2) + 1);
+            int k = (int)((double)(size*size/2+1));
             int broundLimit = size / 2;
             uint channels = outPic.infoHader.channels;
-            int[][,] temp = new int[channels][,];
-            for (int i = 0; i < channels; i++)
-            {   //初始化数组
-                temp[i] = new int[size * size,2];
-            }
-
+            int[,] temp = new int[size*size,2];
             for (int h = broundLimit; h < outPic.infoHader.biHeight - broundLimit; h++)
             {
                 int hLow = h - broundLimit;
                 for (int w = broundLimit; w < outPic.infoHader.biWidth - broundLimit; w++)
                 {
                     int wLow = w - broundLimit;
-                    int[] mid = new int[channels];
-                    for(int i=0;i<channels;i++)
+                    for(int l=0;l<channels;l++)
                     {
-                        mid[i] =  outPic.pixelData[h * outPic.infoHader.l_width + w * channels + i];
-                    }
-                    int index = 0;
-
-                    for (int i = hLow; i < h + broundLimit; i++)
-                    {
-                        for (int j = wLow; j < w + broundLimit; j++)
+                        int mid =  outPic.pixelData[h * outPic.infoHader.l_width + w * channels + l];
+                        int index = 0;
+                        for (int i = hLow; i <= h + broundLimit; i++)
                         {
-                            for (int l = 0; l < channels; l++)
+                            for (int j = wLow; j <= w + broundLimit; j++)
                             {
-                                temp[l][index, 1] = outPic.pixelData[i * outPic.infoHader.l_width + j * channels + l];
-                                temp[l][index, 0] = Math.Abs(mid[l] - outPic.pixelData[i * outPic.infoHader.l_width + j * channels + l]);
+                                temp[index, 1] = outPic.pixelData[i * outPic.infoHader.l_width + j * channels + l];
+                                temp[index, 0] = Math.Abs(mid - outPic.pixelData[i * outPic.infoHader.l_width + j * channels + l]);
+                                index++;
                             }
-                            index++;
                         }
-                    }
-                    for (int i = 0; i < channels; i++)
-                    {
-                        sort(ref temp[i]);
+                        sort(ref temp);
                         int sum = 0;
                         for (int j = 0; j < k; j++)
                         {
-                            sum += temp[i][j, 1];
+                            sum += temp[j, 1];
                         }
-                        outPic.pixelData[h * outPic.infoHader.l_width + w * channels + i] = (byte)(sum / k + 0.5);
+                        outPic.pixelData[h * outPic.infoHader.l_width + w * channels + l] = (byte)(sum / k + 0.5);
                     }
-
                 }
             }
 
@@ -1223,33 +1213,31 @@ namespace bmpProcess
             process outPic = new process();
             copy(inPic, out outPic);
             uint channels = inPic.infoHader.channels;
-            int[] sum = new int[channels];
 
             for (int h = 1; h < inPic.infoHader.biHeight - 1; h++)
             {
                 for (int w = 1; w < inPic.infoHader.biWidth - 1; w++)
                 {
-                    for (int i = -1; i < 2; i++)
-                    {
-                        for (int k = 0; k < channels; k++)
-                        {
-                            int a = inPic.pixelData[(h - 1) * inPic.infoHader.l_width + (w + i) * channels + k];
-                            int b = inPic.pixelData[(h + 1) * inPic.infoHader.l_width + (w - i) * channels + k];
-                            int aError = Math.Abs(a - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
-                            int bError = Math.Abs(b - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
-                            sum[k] += (aError > bError) ? b : a;
-                        }
-                    }
                     for (int k = 0; k < channels; k++)
                     {
-                        int a = inPic.pixelData[h * inPic.infoHader.l_width + (w + 1) * channels + k];
-                        int b = inPic.pixelData[h * inPic.infoHader.l_width + (w - 1) * channels + k];
-                        int aError = Math.Abs(a - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
-                        int bError = Math.Abs(b - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
-                        sum[k] += (aError > bError) ? b : a;
-                        sum[k] += inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k];
-                        outPic.pixelData[h * outPic.infoHader.l_width + w * channels + k] = (byte)(sum[k] / 5 + 0.5);
-                        sum[k] = 0;
+                        int sum = 0;
+                        int a, b, aError, bError;
+                        for (int i = -1; i < 2; i++)
+                        {
+                                a = inPic.pixelData[(h - 1) * inPic.infoHader.l_width + (w + i) * channels + k];
+                                b = inPic.pixelData[(h + 1) * inPic.infoHader.l_width + (w - i) * channels + k];
+                                aError = Math.Abs(a - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
+                                bError = Math.Abs(b - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
+                                sum += (aError > bError) ? b : a;
+                        }
+         
+                        a = inPic.pixelData[h * inPic.infoHader.l_width + (w + 1) * channels + k];
+                        b = inPic.pixelData[h * inPic.infoHader.l_width + (w - 1) * channels + k];
+                        aError = Math.Abs(a - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
+                        bError = Math.Abs(b - inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k]);
+                        sum += (aError > bError) ? b : a;
+                        sum += inPic.pixelData[h * inPic.infoHader.l_width + w * channels + k];
+                        outPic.pixelData[h * outPic.infoHader.l_width + w * channels + k] = (byte)(sum / 5 + 0.5);
                     }
                 }
             }
@@ -1290,32 +1278,24 @@ namespace bmpProcess
                 for (int w = broundLimit; w < inPic.infoHader.biWidth - broundLimit; w++)
                 {
                     int wLow = w - broundLimit;
-                    for (int i = hLow; i <= h + broundLimit; i++)
+                    for (int k = 0; k < channels; k++)
                     {
-                        for (int j = wLow; j <= w + broundLimit; j++)
+                        for (int i = hLow; i <= h + broundLimit; i++)
                         {
-                            for (int k = 0; k < channels; k++)
+                            for (int j = wLow; j <= w + broundLimit; j++)
                             {
                                 temp[k][(i - hLow) * size + (j - wLow)] = inPic.pixelData[i * inPic.infoHader.l_width + j * channels + k];
                             }
                         }
-                    }
 
-                    //计算新的像素值
+                        //计算新的像素值
                    
-                    for (int i = 0; i < channels; i++)
-                    {
                         double avg = 0;
                         double sigma = 0;
-                        //for (int j = 0; j < size * size; j++)
-                        //{
-                        //    avg += temp[i][j];
-                        //}
-                        //avg /= (size * size);
-                        avg = temp[i][(size * size / 2)];
+                        avg = temp[k][(size * size / 2)];   //（size*size/2）是待处理像素
                         for (int j = 0; j < size * size; j++)
                         {
-                            sigma += Math.Pow(temp[i][j] - avg, 2);
+                            sigma += Math.Pow(temp[k][j] - avg, 2);
                         }
                         sigma= Math.Sqrt(sigma / (size * size));
                         avg = 0;
@@ -1325,19 +1305,19 @@ namespace bmpProcess
                             if (j == (size * size / 2))
                             {
                                 count++;
-                                avg += temp[i][j];
+                                avg += temp[k][j];
                                 continue;
                             }
-                            if (Math.Abs(temp[i][j] - temp[i][(int)(size * size / 2 )]) < (2 * sigma))
+                            if (Math.Abs(temp[k][j] - temp[k][(int)(size * size / 2 )]) < (2 * sigma))
                             {
                                 count++;
-                                avg += temp[i][j];
+                                avg += temp[k][j];
                             }
                         }
                         int result = (int)(avg / count + 0.5);
                         if(result <0 ) result=0;
                         if(result>255) result=255;
-                        outPic.pixelData[h * inPic.infoHader.l_width + w * channels + i] = (byte)result;
+                        outPic.pixelData[h * inPic.infoHader.l_width + w * channels + k] = (byte)result;
                     }
                 }
             }
@@ -1386,14 +1366,13 @@ namespace bmpProcess
             return ReturnPhoto(outPic);
         }
 
-
         /// <summary>
         /// 交叉微分算法锐化
         /// </summary>
         /// <param name="inPic"></param>
         /// <returns></returns>
         //交叉微分算法锐化
-        public static System.Drawing.Image crossDiffSharpening(process inPic)
+        public static System.Drawing.Image RobertsSharpening(process inPic)
         {
             process outPic = new process();
             copy(inPic, out outPic);
@@ -1416,5 +1395,48 @@ namespace bmpProcess
 
             return ReturnPhoto(outPic);
         }
+
+        /// <summary>
+        /// sobel&priwitt算法
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        //无方向锐化，一个输入，自动转置
+        public static System.Drawing.Image nonDirecSharpening(process inPic, double[,] filter)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+            int size = filter.GetLength(0);
+            uint channels = inPic.infoHader.channels;
+            uint l_width = inPic.infoHader.l_width;
+            int broundLimit = size / 2;
+
+            for (int h = broundLimit; h < inPic.infoHader.biHeight - broundLimit; h++)
+            {
+                int hLow = h - broundLimit;
+                for (int w = broundLimit; w < inPic.infoHader.biWidth - broundLimit; w++)
+                {
+                    int wLow = w - broundLimit;
+                    for (int k = 0; k < channels; k++)
+                    {
+                        int sumX = 0, sumY = 0;
+                        for (int i = hLow; i <= h + broundLimit; i++)
+                        {
+                            for (int j = wLow; j <= w + broundLimit; j++)
+                            {
+                                sumX += (int)(inPic.pixelData[i * l_width + j * channels + k] * filter[i - hLow, j - wLow]);
+                                sumY += (int)(inPic.pixelData[i * l_width + j * channels + k] * filter[j - wLow, i - hLow]);
+                            }
+                        }
+                        double result = Math.Pow(sumX, 2) + Math.Pow(sumY, 2);
+                        outPic.pixelData[h * l_width + w * channels + k] = (byte)(Math.Sqrt(result));
+                    }
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
+
     }
 }
