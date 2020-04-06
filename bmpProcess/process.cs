@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define e 2.71828;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +13,7 @@ namespace bmpProcess
     //[StructLayout(LayoutKind.Sequential, Pack = 1)]
     //struct存在以4或8为标志进行字节对齐，需要用pack（2）限定对齐系数大小
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+
     public struct FileHader {
         public ushort   bfType;
         public uint    bfSize;
@@ -39,6 +42,7 @@ namespace bmpProcess
 
     public class process
     {
+        public const double e = 2.71828;
         public FileStream fs;
 
         public FileHader fileHader;
@@ -1324,6 +1328,7 @@ namespace bmpProcess
             return ReturnPhoto(outPic);
         }
 
+
         /// <summary>
         /// 锐化滤波器，请输入滤波模板
         /// </summary>
@@ -1357,12 +1362,67 @@ namespace bmpProcess
                             }
                         }
                         sum = Math.Abs(sum);
-                        if (sum > 255) sum = 255;
+                        //if (sum > 255 * 0.45) sum = 255;
+                        //else sum = 0;
+
                         outPic.pixelData[h * inPic.infoHader.l_width + w * channels + k] = (byte)sum;
                     }
                 }
             }
 
+            return ReturnPhoto(outPic);
+        }
+
+        public static System.Drawing.Image sharpeningThreshold(process inPic, double[,] filter)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+            int size = filter.GetLength(0);
+            int broundLimit = size / 2;
+            uint channels = inPic.infoHader.channels;
+            double min = 0;
+            double max = 0;
+
+            double[] temp = new double[inPic.infoHader.biHeight * inPic.infoHader.biWidth * channels];
+
+            for (int h = broundLimit; h < inPic.infoHader.biHeight - broundLimit; h++)
+            {
+                int hLow = h - broundLimit;
+                for (int w = broundLimit; w < inPic.infoHader.biWidth - broundLimit; w++)
+                {
+                    int wLow = w - broundLimit;
+                    for (int k = 0; k < channels; k++)
+                    {
+                        double sum = 0;
+                        for (int i = hLow; i <= h + broundLimit; i++)
+                        {
+                            for (int j = wLow; j <= w + broundLimit; j++)
+                            {
+                                int point = inPic.pixelData[i * inPic.infoHader.l_width + j * channels + k];
+                                sum += filter[i - hLow, j - wLow] * point;
+                            }
+                        }
+                        if (min > sum) min = sum;
+                        if (max < sum) max = sum;
+                        temp[h * inPic.infoHader.biWidth * channels + w * channels + k] = sum;
+                    }
+                }
+            }
+
+            double modulus = 255 / (max - min);
+            for (int h = 0; h < inPic.infoHader.biHeight; h++)
+            {
+                for (int w = 0; w < inPic.infoHader.biWidth; w++)
+                {
+                    for (int k = 0; k < channels; k++)
+                    {
+                        double point = (temp[h * inPic.infoHader.biWidth * channels + w * channels + k] - min) * modulus;
+                        //if (point > 255 * 0.45) point = 255;
+                        //else point = 0;
+                        outPic.pixelData[h * inPic.infoHader.l_width + w * channels + k] = (byte)point;
+                    }
+                }
+            }
             return ReturnPhoto(outPic);
         }
 
@@ -1438,5 +1498,67 @@ namespace bmpProcess
             return ReturnPhoto(outPic);
         }
 
+        /// <summary>
+        /// wallis算法，第二个参数为true时使用绝对值方法处理负数，为false时使用浮雕方法
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static System.Drawing.Image wallis(process inPic , bool tag)
+        {
+            process outPic = new process();
+            copy(inPic, out outPic);
+            uint channels = inPic.infoHader.channels;
+            double max = 0;
+            double min = 0;
+            double[] tempArray = new double[inPic.infoHader.biHeight * inPic.infoHader.biWidth * channels];
+
+            for (int h = 1; h < inPic.infoHader.biHeight - 1; h++)
+            {
+                for (int w = 1; w < inPic.infoHader.biWidth - 1; w++)
+                {
+                    for(int k=0;k<channels;k++)
+                    {
+                        double temp = 0;
+                        temp = Math.Log(1 + inPic.pixelData[(h - 1) * inPic.infoHader.l_width  + w * channels + k], e);
+                        temp += Math.Log(1 + inPic.pixelData[(h + 1) * inPic.infoHader.l_width  + w * channels + k], e);
+                        temp += Math.Log(1 + inPic.pixelData[h * inPic.infoHader.l_width  + (w - 1) * channels + k], e);
+                        temp += Math.Log(1 + inPic.pixelData[h * inPic.infoHader.l_width  + (w + 1) * channels + k], e);
+                        temp = Math.Log(1 + inPic.pixelData[h * inPic.infoHader.l_width  + w * channels + k], e) - temp / 4;
+                        temp *= 255/Math.Log(256, e);
+                        tempArray[h * inPic.infoHader.biWidth * channels + w * channels + k] = temp ;
+                        if (temp < min) min = temp;
+                        if (temp > max) max = temp;
+                    }
+                }
+            }
+
+            double modulus = 255 / (max - min);
+            for (int h = 0; h < inPic.infoHader.biHeight; h++)
+            {
+                for (int w = 0; w < inPic.infoHader.biWidth; w++)
+                {
+                    for (int k = 0; k < channels; k++)
+                    {
+                        double point = tempArray[h * inPic.infoHader.biWidth * channels + w * channels + k];
+                        if (tag)
+                        {
+                            //point = Math.Abs(point);
+                            outPic.pixelData[h * inPic.infoHader.l_width + w * channels + k] = (byte)point;
+                        }
+                        else
+                        {
+                            point = (point - min) * modulus;
+                            //if (point > 255 * 0.1) point = 255;
+                            //else point = 0;
+                            outPic.pixelData[h * inPic.infoHader.l_width + w * channels + k] = (byte)point;
+                        }
+                        
+                    }
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
     }
 }

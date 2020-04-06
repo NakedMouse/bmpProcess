@@ -22,6 +22,7 @@ namespace bmpProcess
         private string pathname = string.Empty;
         private bool isRshow = false;
 
+        //以下是辅助功能部分
         private void run_Click(object sender, EventArgs e)
         {
             //showRight(pathname);
@@ -123,6 +124,21 @@ namespace bmpProcess
             }
         }
 
+        private void saveButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog save = new SaveFileDialog();
+                save.ShowDialog();
+                outPicBox.Image.Save(save.FileName);
+                MessageBox.Show("Save success!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Input a file name as a bmp file\n" + ex);
+            }
+        }
+        //以下是处理部分
         private void sumButt_Click(object sender, EventArgs e)
         {
             doubMethod(1);
@@ -193,6 +209,7 @@ namespace bmpProcess
                         isRshow = true;
                         outPic.fs.Close();
                     }
+
                 }
             }
             catch (Exception ex)
@@ -207,21 +224,6 @@ namespace bmpProcess
             bitCut bitcut = new bitCut();
             bitcut.Show();
 
-        }
-
-        private void saveButt_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                SaveFileDialog save = new SaveFileDialog();
-                save.ShowDialog();
-                outPicBox.Image.Save(save.FileName);
-                MessageBox.Show("Save success!");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Input a file name as a bmp file\n" + ex);
-            }
         }
 
     }

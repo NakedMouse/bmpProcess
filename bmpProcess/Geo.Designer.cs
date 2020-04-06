@@ -71,6 +71,8 @@
             this.verSharpButt = new System.Windows.Forms.Button();
             this.crossDiffSharpButt = new System.Windows.Forms.Button();
             this.sobelSharpButt = new System.Windows.Forms.Button();
+            this.openForm = new System.Windows.Forms.Button();
+            this.wallisAbsSharpButt = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -257,7 +259,7 @@
             this.groupBox1.Controls.Add(this.enlargeButt);
             this.groupBox1.Controls.Add(this.narrowButt);
             this.groupBox1.Controls.Add(this.mirrorButt);
-            this.groupBox1.Location = new System.Drawing.Point(485, 24);
+            this.groupBox1.Location = new System.Drawing.Point(607, 24);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(544, 71);
             this.groupBox1.TabIndex = 21;
@@ -415,6 +417,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.wallisAbsSharpButt);
             this.groupBox4.Controls.Add(this.wallisSharpButt);
             this.groupBox4.Controls.Add(this.LoGSharpButt);
             this.groupBox4.Controls.Add(this.laplaceSharpButt4);
@@ -437,7 +440,7 @@
             // 
             this.wallisSharpButt.AutoSize = true;
             this.wallisSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.wallisSharpButt.Location = new System.Drawing.Point(112, 132);
+            this.wallisSharpButt.Location = new System.Drawing.Point(221, 132);
             this.wallisSharpButt.Name = "wallisSharpButt";
             this.wallisSharpButt.Size = new System.Drawing.Size(100, 30);
             this.wallisSharpButt.TabIndex = 26;
@@ -449,7 +452,7 @@
             // 
             this.LoGSharpButt.AutoSize = true;
             this.LoGSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.LoGSharpButt.Location = new System.Drawing.Point(6, 132);
+            this.LoGSharpButt.Location = new System.Drawing.Point(115, 132);
             this.LoGSharpButt.Name = "LoGSharpButt";
             this.LoGSharpButt.Size = new System.Drawing.Size(100, 30);
             this.LoGSharpButt.TabIndex = 25;
@@ -460,7 +463,7 @@
             // laplaceSharpButt4
             // 
             this.laplaceSharpButt4.Cursor = System.Windows.Forms.Cursors.Default;
-            this.laplaceSharpButt4.Location = new System.Drawing.Point(218, 96);
+            this.laplaceSharpButt4.Location = new System.Drawing.Point(9, 132);
             this.laplaceSharpButt4.Name = "laplaceSharpButt4";
             this.laplaceSharpButt4.Size = new System.Drawing.Size(100, 30);
             this.laplaceSharpButt4.TabIndex = 24;
@@ -471,7 +474,7 @@
             // laplaceSharpButt3
             // 
             this.laplaceSharpButt3.Cursor = System.Windows.Forms.Cursors.Default;
-            this.laplaceSharpButt3.Location = new System.Drawing.Point(112, 96);
+            this.laplaceSharpButt3.Location = new System.Drawing.Point(221, 96);
             this.laplaceSharpButt3.Name = "laplaceSharpButt3";
             this.laplaceSharpButt3.Size = new System.Drawing.Size(100, 30);
             this.laplaceSharpButt3.TabIndex = 23;
@@ -482,7 +485,7 @@
             // laplaceSharpButt2
             // 
             this.laplaceSharpButt2.Cursor = System.Windows.Forms.Cursors.Default;
-            this.laplaceSharpButt2.Location = new System.Drawing.Point(6, 96);
+            this.laplaceSharpButt2.Location = new System.Drawing.Point(115, 96);
             this.laplaceSharpButt2.Name = "laplaceSharpButt2";
             this.laplaceSharpButt2.Size = new System.Drawing.Size(100, 30);
             this.laplaceSharpButt2.TabIndex = 22;
@@ -493,7 +496,7 @@
             // laplaceSharpButt1
             // 
             this.laplaceSharpButt1.Cursor = System.Windows.Forms.Cursors.Default;
-            this.laplaceSharpButt1.Location = new System.Drawing.Point(218, 60);
+            this.laplaceSharpButt1.Location = new System.Drawing.Point(9, 96);
             this.laplaceSharpButt1.Name = "laplaceSharpButt1";
             this.laplaceSharpButt1.Size = new System.Drawing.Size(100, 30);
             this.laplaceSharpButt1.TabIndex = 21;
@@ -504,7 +507,7 @@
             // priwittSharpButt
             // 
             this.priwittSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.priwittSharpButt.Location = new System.Drawing.Point(112, 60);
+            this.priwittSharpButt.Location = new System.Drawing.Point(221, 60);
             this.priwittSharpButt.Name = "priwittSharpButt";
             this.priwittSharpButt.Size = new System.Drawing.Size(100, 30);
             this.priwittSharpButt.TabIndex = 20;
@@ -515,7 +518,7 @@
             // levelSharpButt
             // 
             this.levelSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.levelSharpButt.Location = new System.Drawing.Point(6, 24);
+            this.levelSharpButt.Location = new System.Drawing.Point(9, 24);
             this.levelSharpButt.Name = "levelSharpButt";
             this.levelSharpButt.Size = new System.Drawing.Size(100, 30);
             this.levelSharpButt.TabIndex = 13;
@@ -526,7 +529,7 @@
             // verSharpButt
             // 
             this.verSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.verSharpButt.Location = new System.Drawing.Point(112, 24);
+            this.verSharpButt.Location = new System.Drawing.Point(115, 24);
             this.verSharpButt.Name = "verSharpButt";
             this.verSharpButt.Size = new System.Drawing.Size(100, 30);
             this.verSharpButt.TabIndex = 14;
@@ -537,7 +540,7 @@
             // crossDiffSharpButt
             // 
             this.crossDiffSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.crossDiffSharpButt.Location = new System.Drawing.Point(218, 24);
+            this.crossDiffSharpButt.Location = new System.Drawing.Point(9, 60);
             this.crossDiffSharpButt.Name = "crossDiffSharpButt";
             this.crossDiffSharpButt.Size = new System.Drawing.Size(100, 30);
             this.crossDiffSharpButt.TabIndex = 19;
@@ -548,7 +551,7 @@
             // sobelSharpButt
             // 
             this.sobelSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.sobelSharpButt.Location = new System.Drawing.Point(6, 60);
+            this.sobelSharpButt.Location = new System.Drawing.Point(115, 60);
             this.sobelSharpButt.Name = "sobelSharpButt";
             this.sobelSharpButt.Size = new System.Drawing.Size(100, 30);
             this.sobelSharpButt.TabIndex = 15;
@@ -556,12 +559,35 @@
             this.sobelSharpButt.UseVisualStyleBackColor = true;
             this.sobelSharpButt.Click += new System.EventHandler(this.sobelSharpButt_Click);
             // 
+            // openForm
+            // 
+            this.openForm.Location = new System.Drawing.Point(442, 48);
+            this.openForm.Name = "openForm";
+            this.openForm.Size = new System.Drawing.Size(107, 32);
+            this.openForm.TabIndex = 32;
+            this.openForm.Text = "简单运算";
+            this.openForm.UseVisualStyleBackColor = true;
+            this.openForm.Click += new System.EventHandler(this.openForm_Click);
+            // 
+            // wallisAbsSharpButt
+            // 
+            this.wallisAbsSharpButt.AutoSize = true;
+            this.wallisAbsSharpButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.wallisAbsSharpButt.Location = new System.Drawing.Point(221, 167);
+            this.wallisAbsSharpButt.Name = "wallisAbsSharpButt";
+            this.wallisAbsSharpButt.Size = new System.Drawing.Size(100, 30);
+            this.wallisAbsSharpButt.TabIndex = 27;
+            this.wallisAbsSharpButt.Text = "Wallis_abs";
+            this.wallisAbsSharpButt.UseVisualStyleBackColor = true;
+            this.wallisAbsSharpButt.Click += new System.EventHandler(this.wallisAbsSharpButt_Click);
+            // 
             // Geo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1170, 623);
+            this.Controls.Add(this.openForm);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.timeBox);
             this.Controls.Add(this.textBox3);
@@ -638,5 +664,7 @@
         private System.Windows.Forms.Button laplaceSharpButt4;
         private System.Windows.Forms.Button laplaceSharpButt3;
         private System.Windows.Forms.Button wallisSharpButt;
+        private System.Windows.Forms.Button openForm;
+        private System.Windows.Forms.Button wallisAbsSharpButt;
     }
 }

@@ -25,8 +25,6 @@ namespace bmpProcess
             outPic = new process();
         }
 
-
-
         private void geoOpenIn_Click(object sender, EventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();
@@ -147,6 +145,54 @@ namespace bmpProcess
             }
         }
 
+        private void saveButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog save = new SaveFileDialog();
+                save.ShowDialog();
+                outPicBox.Image.Save(save.FileName);
+                MessageBox.Show("Save success!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Input a file name as a bmp file\n" + ex.Message);
+            }
+        }
+
+        private void getContrast()
+        {
+            try
+            {
+                if (this.inPicBox.Image != null)
+                {
+                    double contrast1 = process.contrast(inPic, 2);
+                    this.textBox2.Text = contrast1.ToString();
+                }
+                if (this.outPicBox.Image != null)
+                {
+                    if (!Directory.Exists("out//temp"))
+                    {
+                        Directory.CreateDirectory("out//temp");
+                    }
+                    string file = "out//temp//temp.bmp";
+                    this.outPicBox.Image.Save(file);
+                    FileStream tempFs = new FileStream(file, FileMode.Open, FileAccess.ReadWrite);
+                    outPic.getData(tempFs);
+                    tempFs.Close();
+                    double contrast2 = process.contrast(outPic, 2);
+                    this.textBox3.Text = contrast2.ToString();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        //上面是辅助性功能，以下是空域、几何处理部分
+
         private void moveButt_Click(object sender, EventArgs e)
         {
             singleMethod(1);
@@ -197,6 +243,8 @@ namespace bmpProcess
             singleMethod(10);
         }
 
+
+        //以下是平滑处理部分
         private void Geo_FormClosed(object sender, FormClosedEventArgs e)
         {
             this.outPicBox.Image = null;
@@ -213,21 +261,6 @@ namespace bmpProcess
             }
         }
 
-        private void saveButt_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                SaveFileDialog save = new SaveFileDialog();
-                save.ShowDialog();
-                outPicBox.Image.Save(save.FileName);
-                MessageBox.Show("Save success!");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Input a file name as a bmp file\n" + ex);
-            }
-        }
-
         private void avgFilterButt_Click(object sender, EventArgs e)
         {
             try
@@ -235,9 +268,11 @@ namespace bmpProcess
                 //double[,] filter = { {0,1,0},
                 //                   {1,4,1},
                 //                   {0,1,0}};
-                double[,] filter = { {1,1,1},
-                                   {1,1,1},
-                                   {1,1,1}};
+                double[,] filter = { {1,1,1,1,1},
+                                   {1,1,1,1,1},
+                                   {1,1,1,1,1},
+                                   {1,1,1,1,1},
+                                   {1,1,1,1,1},};
                 this.outPicBox.Image = process.weightFilter(inPic, filter);
                 getContrast();
             }
@@ -285,37 +320,6 @@ namespace bmpProcess
                 int size = 3;
                 this.outPicBox.Image = process.medianFilter2D(inPic, size);
                 getContrast();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void getContrast()
-        {
-            try
-            {
-                if (this.inPicBox.Image != null)
-                {
-                    double contrast1 = process.contrast(inPic, 2);
-                    this.textBox2.Text = contrast1.ToString();
-                }
-                if (this.outPicBox.Image != null)
-                {
-                    if (!Directory.Exists("out//temp"))
-                    {
-                        Directory.CreateDirectory("out//temp");
-                    }
-                    string file = "out//temp//temp.bmp";
-                    this.outPicBox.Image.Save(file);
-                    FileStream tempFs = new FileStream(file, FileMode.Open, FileAccess.ReadWrite);
-                    outPic.getData(tempFs);
-                    tempFs.Close();
-                    double contrast2 = process.contrast(outPic, 2);
-                    this.textBox3.Text = contrast2.ToString();
-                }
-
             }
             catch (Exception ex)
             {
@@ -375,13 +379,15 @@ namespace bmpProcess
             }
         }
 
+       
         //锐化一般性入口
         private void sharpening(double[,] filter)
         {
             try
             {
                 int start = System.Environment.TickCount;
-                this.outPicBox.Image = process.sharpening(inPic, filter);
+                //this.outPicBox.Image = process.sharpening(inPic, filter);
+                this.outPicBox.Image = process.sharpeningThreshold(inPic, filter);
                 int end = System.Environment.TickCount;
                 this.timeBox.Text = (end - start).ToString();
                 getContrast();
@@ -395,6 +401,9 @@ namespace bmpProcess
         
         private void levelSharpButt_Click(object sender, EventArgs e)
         {
+            //double[,] filter = { { 0, 2, 1 }, 
+            //                   {  -2, 0, 2 }, 
+            //                   {  -1,-2, 0 } };
             double[,] filter = { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
             sharpening(filter);
         }
@@ -464,10 +473,7 @@ namespace bmpProcess
 
         private void wallisSharpButt_Click(object sender, EventArgs e)
         {
-            double[,] filter = { { 0, -0.25, 0 }, 
-                                { -0.25, 1, -0.25 }, 
-                                { 0, -0.25, 0 } };
-            sharpening(filter);
+            wallis(false);
         }
 
         private void sobelSharpButt_Click(object sender, EventArgs e)
@@ -506,7 +512,32 @@ namespace bmpProcess
             }
         }
 
+        private void openForm_Click(object sender, EventArgs e)
+        {
+            Form1 form1 = new Form1();
+            form1.Show();
+        }
 
+        private void wallisAbsSharpButt_Click(object sender, EventArgs e)
+        {
+            wallis(true);
+        }
+        
+        private void wallis(bool tag)
+        {
+            try
+            {
+                int start = System.Environment.TickCount;
+                this.outPicBox.Image = process.wallis(inPic, tag);
+                int end = System.Environment.TickCount;
+                this.timeBox.Text = (end - start).ToString();
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
     }
 }
