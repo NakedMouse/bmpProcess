@@ -96,6 +96,13 @@ namespace bmpProcess
             //filestream.Close();
         }
 
+        //tag==1 输出到磁盘，否则图像保存在outPic
+        /// <summary>
+        /// tag==1 输出到磁盘，否则图像保存在outPic
+        /// </summary>
+        /// <param name="outPic"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
         public bool transToGray(out process outPic, int tag)
         {
             if (infoHader.channels != 3) 
@@ -376,6 +383,177 @@ namespace bmpProcess
             return (byte)array[size / 2];
         }
 
+        /// <summary>
+        /// 返回图像对比度，mode==1为4近邻，mode==2为8近邻
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        //返回图像对比度
+        //对参考文件的算法进行了一点修改，可以适应单色\多色图像
+        public static double contrast(process inPic, int mode)
+        {
+            int width = (int)inPic.infoHader.biWidth;
+            int height = (int)inPic.infoHader.biHeight;
+            int Lw = (int)inPic.infoHader.l_width;
+            int channels = (int)inPic.infoHader.channels;
+
+            int temp0 = 2, temp1 = 3, temp2 = 4;
+            int num = 0;
+            double[] contrastSum = new double[channels];
+
+            if (mode == 2)
+            {
+                temp0 = 3;
+                temp1 = 5;
+                temp2 = 8;
+            }
+            num = 4 * temp0 + ((int)(width - 2) + (int)(height - 2)) * 2 * temp1 + (int)((width - 2) * (height - 2) * temp2);
+
+            for (int h = 0; h < height; h++)
+            {
+                for (int w = 0; w < width; w++)
+                {
+                    if (h > 0)
+                    {
+                        for (int k = 0; k < channels; k++)
+                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h - 1) * Lw + w * channels + k]), 2.0);
+
+                        if (mode == 2)
+                        {
+                            if (w > 0)
+                                for (int k = 0; k < channels; k++)
+                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h - 1) * Lw + (w - 1) * channels + k]), 2.0);
+
+                            if (w < width - 1)
+                                for (int k = 0; k < channels; k++)
+                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h - 1) * Lw + (w + 1) * channels + k]), 2.0);
+                        }
+                    }
+
+                    if (h < height - 1)
+                    {
+                        for (int k = 0; k < channels; k++)
+                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h + 1) * Lw + w * channels + k]), 2.0);
+
+                        if (mode == 2)
+                        {
+                            if (w > 0)
+                                for (int k = 0; k < channels; k++)
+                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h + 1) * Lw + (w - 1) * channels + k]), 2.0);
+
+                            if (w < width - 1)
+                                for (int k = 0; k < channels; k++)
+                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h + 1) * Lw + (w + 1) * channels + k]), 2.0);
+                        }
+                    }
+
+                    if (w > 0)
+                        for (int k = 0; k < channels; k++)
+                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[h * Lw + (w - 1) * channels + k]), 2.0);
+
+                    if (w < width - 1)
+                        for (int k = 0; k < channels; k++)
+                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[h * Lw + (w + 1) * channels + k]), 2.0);
+                }
+            }
+
+            double result = 0;
+            for (int k = 0; k < channels; k++)
+                result += contrastSum[k];
+
+            return result / channels / num;
+        }
+
+        private static void sort(ref int[,] array)
+        {
+            int size = array.Length / 2;
+
+            for (int i = 0; i < size - 1; i++)
+            {
+                int c = i;
+                for (int j = i + 1; j < size; j++)
+                {
+                    if (array[c, 0] > array[j, 0])
+                    {
+                        c = j;
+                    }
+                }
+                int temp = array[i, 0];
+                array[i, 0] = array[c, 0];
+                array[c, 0] = temp;
+                temp = array[i, 1];
+                array[i, 1] = array[c, 1];
+                array[c, 1] = temp;
+            }
+
+            //array[size-1, 1] = 50;
+        }
+
+        /// <summary>
+        /// 计算输入图片灰度直方图
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <returns></returns>
+        private static int[] getHistrogram(process inPic)
+        {
+            int[] grayHis = new int[256];
+            if (inPic.infoHader.biBitCount != 8)
+            {
+                process outPic = new process();
+                inPic.transToGray(out outPic, 2);
+                for (int h = 0, w = 0; h < outPic.infoHader.biHeight; h++)
+                {
+                    for (w = 0; w < outPic.infoHader.biWidth; w++)
+                    {
+                        uint temp = (uint)(outPic.pixelData[h * outPic.infoHader.l_width + w] - 0);
+                        grayHis[temp]++;
+                    }
+                }
+            }
+            else
+            {
+                for (int h = 0, w = 0; h < inPic.infoHader.biHeight; h++)
+                {
+                    for (w = 0; w < inPic.infoHader.biWidth; w++)
+                    {
+                        uint temp = (uint)(inPic.pixelData[h * inPic.infoHader.l_width + w] - 0);
+                        grayHis[temp]++;
+                    }
+                }
+            }
+
+            return grayHis;
+        }
+
+        /// <summary>
+        /// 获得灰度比例数组,参数2输入图像总像素点
+        /// </summary>
+        /// <param name="grayHis"></param>
+        /// <param name="sum"></param>
+        /// <returns></returns>
+        private static double[] getProportion(int[] grayHis, double sum)
+        {
+            double[] pro = new double[256];
+
+            //灰度比例统计
+            for (int i = 0; i < 256; i++)
+            {
+                pro[i] = (double)grayHis[i] / sum;
+                if (i != 0)
+                {
+                    pro[i] += pro[i - 1];
+                }
+            }
+
+            return pro;
+        }
+
+
+
+
+        
+        
         //双目运算 mode 1,2,3,4分别表示加减乘除 , 5,6表示逻辑与、或运算
         public static bool doubOperator(process inPic1, process inPic2, out process outPic , int mode)
         {
@@ -839,26 +1017,11 @@ namespace bmpProcess
                 copy(inPic, out outPic);
             }
 
-            int[] grayHis = new int[256];
-            double sum = (double)(outPic.infoHader.biHeight * outPic.infoHader.biWidth);
-            //统计直方图
-            for (int h = 0, w = 0; h < outPic.infoHader.biHeight; h++)
-            {
-                for (w = 0; w < outPic.infoHader.biWidth; w++)
-                {
-                    uint temp = (uint)(outPic.pixelData[h * outPic.infoHader.l_width + w] - 0);
-                    grayHis[temp]++;
-                }
-            }
-            double[] pro = new double[256];
+            int[] grayHis = getHistrogram(outPic);      //获得灰度直方图
+            double[] pro = getProportion(grayHis,outPic.infoHader.biHeight * outPic.infoHader.biWidth);     //获得灰度比例
             //灰度变换
             for (int i = 0; i < 256; i++)
             {
-                pro[i] = (double)grayHis[i] / sum;
-                if (i != 0)
-                {
-                    pro[i] += pro[i - 1];
-                }
                 grayHis[i] = (int)(255 * pro[i] + 0.5);
             }
 
@@ -898,6 +1061,11 @@ namespace bmpProcess
             }
             return ReturnPhoto(outPic);
         }
+
+
+
+
+
 
         /**
          * 以下为滤波器部分，包括平滑滤波器、边界保持类滤波器、图像锐化滤波器
@@ -1048,113 +1216,6 @@ namespace bmpProcess
             }
 
             return ReturnPhoto(outPic);
-        }
-
-        /// <summary>
-        /// 返回图像对比度，mode==1为4近邻，mode==2为8近邻
-        /// </summary>
-        /// <param name="inPic"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
-        //返回图像对比度
-        //对参考文件的算法进行了一点修改，可以适应单色\多色图像
-        public static double contrast(process inPic, int mode)
-        {
-            int width = (int)inPic.infoHader.biWidth;
-            int height = (int)inPic.infoHader.biHeight;
-            int Lw = (int)inPic.infoHader.l_width;
-            int channels = (int)inPic.infoHader.channels;
-
-            int temp0 = 2, temp1 = 3, temp2 = 4;
-            int num = 0;
-            double[] contrastSum = new double[channels];
-
-            if (mode == 2)
-            {
-                temp0 = 3;
-                temp1 = 5;
-                temp2 = 8;
-            }
-            num = 4 * temp0 + ((int)(width - 2) + (int)(height - 2)) * 2 * temp1 + (int)((width - 2) * (height - 2) * temp2);
-
-            for (int h = 0; h < height; h++)
-            {
-                for (int w = 0; w < width; w++)
-                {
-                    if (h > 0)  
-                    {
-                        for (int k = 0; k < channels; k++)
-                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h - 1) * Lw + w * channels + k]), 2.0);
-                        
-                        if (mode == 2)
-                        {
-                            if (w > 0)
-                                for (int k = 0; k < channels; k++)
-                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h - 1) * Lw + (w - 1) * channels + k]), 2.0);
-                            
-                            if (w < width - 1)
-                                for (int k = 0; k < channels; k++)
-                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h - 1) * Lw + (w + 1) * channels + k]), 2.0);
-                        }
-                    }
-
-                    if (h < height - 1)
-                    {
-                        for (int k = 0; k < channels; k++)
-                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h + 1) * Lw + w * channels + k]), 2.0);
-                        
-                        if (mode == 2)
-                        {
-                            if (w > 0)
-                                for (int k = 0; k < channels; k++)
-                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h + 1) * Lw + (w - 1) * channels + k]), 2.0);
-                           
-                            if (w < width - 1)
-                                for (int k = 0; k < channels; k++)
-                                    contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[(h + 1) * Lw + (w + 1) * channels + k]), 2.0);
-                        }
-                    }
-
-                    if (w > 0)
-                        for (int k = 0; k < channels; k++)
-                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[h * Lw + (w - 1) * channels + k]), 2.0);
-
-                    if(w<width-1)
-                        for (int k = 0; k < channels; k++)
-                            contrastSum[k] += Math.Pow((inPic.pixelData[h * Lw + w * channels + k] - inPic.pixelData[h * Lw + (w + 1) * channels + k]), 2.0);
-                }
-            }
-            
-            double result = 0;
-            for (int k = 0; k < channels; k++)
-                result += contrastSum[k];
-
-            return result / channels / num;
-        }
-
-        private static void sort(ref int[,] array)
-        {
-            int size = array.Length/2;
-
-            for (int i = 0; i < size - 1; i++)
-            {
-                int c = i;
-                for (int j = i + 1; j < size; j++)
-                {
-                    if (array[c, 0] > array[j, 0])
-                    {
-                        c = j;
-                    }
-                }
-                int temp = array[i, 0];
-                array[i, 0] = array[c, 0];
-                array[c, 0] = temp;
-                temp = array[i, 1];
-                array[i, 1] = array[c, 1];
-                array[c, 1] = temp;
-            }
-
-            //array[size-1, 1] = 50;
         }
 
         /// <summary>
@@ -1327,7 +1388,6 @@ namespace bmpProcess
             }
             return ReturnPhoto(outPic);
         }
-
 
         /// <summary>
         /// 锐化滤波器，请输入滤波模板
@@ -1558,6 +1618,283 @@ namespace bmpProcess
                 }
             }
 
+            return ReturnPhoto(outPic);
+        }
+    
+
+
+
+        /**
+         *以下是图像切割部分 
+         * 
+         **/
+
+        /// <summary>
+        /// P参数切割
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="pPara"></param>
+        /// <returns></returns>
+        public static System.Drawing.Image pParaSegmen(process inPic , double pPara)
+        {
+            process outPic = new process();
+            if (inPic.infoHader.channels != 1)
+            {
+                inPic.transToGray(out outPic, 0);
+            }
+            else
+            {
+                copy(inPic, out outPic);
+            }
+
+            uint width = outPic.infoHader.biWidth;
+            uint height = outPic.infoHader.biHeight;
+            int[] grayHis = getHistrogram(outPic);      //获得灰度直方图
+            double[] pro = getProportion(grayHis, width * height);
+
+            pPara /= 100.0;
+            uint Th = 0;
+            //找距P参数最近的值
+            for (int i = 0; i < 255; i++)
+            {
+                if (pro[i] < pPara && pro[i + 1] >= pPara)
+                {
+                    Th = (uint)i;
+                    break;
+                }
+                if (pro[255] <= pPara)
+                {
+                    Th = 255;
+                    break;
+                }
+            }
+
+            for (int h = 0; h < height; h++)
+            {
+                for (int w = 0; w < width; w++)
+                {
+                    if (outPic.pixelData[h * outPic.infoHader.l_width + w] >= Th) outPic.pixelData[h * outPic.infoHader.l_width + w] = 255;
+                    else outPic.pixelData[h * outPic.infoHader.l_width + w] = 0;
+                }
+            }
+ 
+            return ReturnPhoto(outPic);
+        }
+
+        /// <summary>
+        /// 均匀性度量图像分割
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <returns></returns>
+        public static System.Drawing.Image uniforMeasureSegmen(process inPic)
+        {
+            process outPic;
+            if (inPic.infoHader.channels != 1)
+            {
+                inPic.transToGray(out outPic, 0);
+            }
+            else
+            {
+                copy(inPic, out outPic);
+            }
+
+            int[] grayHis = getHistrogram(inPic);
+            double sum = outPic.infoHader.biWidth * outPic.infoHader.biHeight;
+            double[] pro = getProportion(grayHis, sum);
+           
+            int Th = 1;
+            double min = -1; ;
+
+            //0--(Th-1) 和 Th--255
+            for (int i=1; i < 255; i++)
+            {
+                double p1 = pro[i - 1];
+                double p2 = 1.0 - pro[i - 1];
+              
+                int Nc1 = (int)(p1 * sum);
+                int Nc2 = (int)(p2*sum);
+
+                double sigma1 = getSigma(0, i - 1, grayHis, Nc1);
+                double sigma2 = getSigma(i, 255, grayHis, Nc2);
+                
+                if (min > sigma1 * p1 + sigma2 * p2 || min == -1)
+                {
+                    min = sigma1 * p1 + sigma2 * p2;
+                    //min = (sigma1 + sigma2) / sum; 
+                    Th = i;
+                }
+            }
+
+            for (int h = 0; h < inPic.infoHader.biHeight; h++)
+            {
+                for (int w = 0; w < inPic.infoHader.biWidth; w++)
+                {
+                    if (outPic.pixelData[h * outPic.infoHader.l_width + w] < Th) 
+                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 0;
+                    else
+                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 255;
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
+
+        /// <summary>
+        /// 返回sigma值
+        /// </summary>
+        /// <param name="indexL"></param>
+        /// <param name="indexR"></param>
+        /// <param name="grayHis"></param>
+        /// <param name="Nc"></param>
+        /// <returns></returns>
+        private static double getSigma(int indexL , int indexR , int[] grayHis , int Nc)
+        {
+            double sigma = 0;
+            double miu = getMiu(indexL, indexR, grayHis, Nc);
+
+            for (int i = indexL; i <= indexR; i++)
+            {
+                sigma += Math.Pow((i - miu), 2) * grayHis[i];
+            }
+            return sigma/Nc;
+        }
+
+        /// <summary>
+        /// 获得平均值miu
+        /// </summary>
+        /// <param name="indexL"></param>
+        /// <param name="indexR"></param>
+        /// <param name="grayHis"></param>
+        /// <param name="Nc"></param>
+        /// <returns></returns>
+        private static double getMiu(int indexL, int indexR, int[] grayHis, int Nc)
+        {
+            double miu = 0;
+
+            for (int i = indexL; i <= indexR; i++)
+            {
+                miu += grayHis[i] * i;
+            }
+            return miu / Nc;
+        }
+
+        /// <summary>
+        /// 计算新的聚类中心
+        /// </summary>
+        /// <param name="grayHis"></param>
+        /// <param name="flag"></param>
+        /// <param name="miu"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        private static double newCenter(int[] grayHis, int[] flag, out double miu , int tag)
+        {
+            double sigma = 0;
+            miu = 0;
+            int count = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                if (flag[i] == tag)
+                {
+                    miu += grayHis[i] * i;
+                    count += grayHis[i];
+                }
+            }
+            miu /= count;
+
+            for (int i = 0; i <256; i++)
+                if (flag[i] == tag) sigma += Math.Pow((i - miu), 2) * grayHis[i];
+            
+            return sigma;
+        }
+
+        /// <summary>
+        /// 聚类方法图像分割
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <returns></returns>
+        public static System.Drawing.Image clusterSegmen(process inPic)
+        {
+            process outPic;
+            if (inPic.infoHader.channels != 1) inPic.transToGray(out outPic, 0);
+            else copy(inPic, out outPic);
+
+            int[] grayHis = getHistrogram(outPic);
+            double sum = outPic.infoHader.biWidth * outPic.infoHader.biHeight;
+            double[] pro = getProportion(grayHis,sum);
+            int[] flag = new int[256];
+
+            int Th = 128;
+            double sigma1 = getSigma(0, Th - 1, grayHis, (int)(pro[Th] * sum));
+            double sigma2 = getSigma(Th, 255, grayHis, (int)(sum - pro[Th] * sum));
+            double miu1 = getMiu(0, Th - 1, grayHis, (int)(pro[Th] * sum));
+            double miu2 = getMiu(Th, 255, grayHis, (int)(sum - pro[Th] * sum));
+            double f = pro[Th] * sigma1 + (1 - pro[Th]) * sigma2;
+            double min = f;
+
+            do
+            {
+                if (min > f) min = f;
+                for (int i = 0; i < 256; i++)
+                {
+                    if (Math.Abs(i - miu1) <= Math.Abs(i - miu2)) flag[i] = 1;
+                    else flag[i] = 2;
+                }
+
+                //重新计算
+                sigma1 = newCenter(grayHis, flag, out miu1, 1);
+                sigma2 = newCenter(grayHis, flag, out miu2, 2);
+                f = (sigma1 + sigma2) / sum;
+            } while (Math.Abs(f - min) < 0.1);
+
+            for (int h = 0; h < inPic.infoHader.biHeight; h++)
+            {
+                for (int w = 0; w < inPic.infoHader.biWidth; w++)
+                {
+                    if (flag[outPic.pixelData[h * outPic.infoHader.l_width + w]] == 1)
+                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 0;
+                    else
+                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 255;
+                }
+            }
+
+            return ReturnPhoto(outPic);
+        }
+
+        /// <summary>
+        /// 全局阈值方法分割图像
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <returns></returns>
+        public static System.Drawing.Image globalThresholdSegmen(process inPic)
+        {
+            process outPic;
+            if (inPic.infoHader.channels != 1) inPic.transToGray(out outPic, 0);
+            else copy(inPic, out outPic);
+
+            int[] grayHis = getHistrogram(outPic);
+            double sum = outPic.infoHader.biWidth * outPic.infoHader.biHeight;
+            double[] pro = getProportion(grayHis, sum);
+
+            int Th = 128;
+
+            double miu1, miu2, temp;
+            do
+            {
+                miu1 = getMiu(0, Th - 1, grayHis, (int)(pro[Th - 1] * sum));
+                miu2 = getMiu(Th, 255, grayHis, (int)((1.0 - pro[Th - 1]) * sum));
+                temp = (miu1 + miu2) / 2;
+            } while (Math.Abs(temp-Th)<0.1);
+
+            for (int h = 0; h < inPic.infoHader.biHeight; h++)
+            {
+                for (int w = 0; w < inPic.infoHader.biWidth; w++)
+                {
+                    if (outPic.pixelData[h * outPic.infoHader.l_width + w] < Th)
+                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 0;
+                    else
+                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 255;
+                }
+            }
             return ReturnPhoto(outPic);
         }
     }

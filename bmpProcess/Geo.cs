@@ -66,6 +66,7 @@ namespace bmpProcess
                 fs.Close();
                 inPic.fs.Close();
                 outPic.fs.Close();
+                
             }
             catch (Exception ex)
             {
@@ -539,5 +540,138 @@ namespace bmpProcess
             }
         }
 
+
+        //页面切换
+        private void airspaceProcessButt_Click(object sender, EventArgs e)
+        {
+            switchPanel(1);
+        }
+
+        private void smoothButt_Click(object sender, EventArgs e)
+        {
+            switchPanel(2);
+        }
+
+        private void sharpenButt_Click(object sender, EventArgs e)
+        {
+            switchPanel(3);
+        }
+
+        private void imgSegmenButt_Click(object sender, EventArgs e)
+        {
+            switchPanel(4);
+        }
+
+        private void switchPanel(int tag)
+        {
+            this.smoothPanel.Hide();
+            this.airspaceProcessPanel.Hide();
+            this.sharpenPanel.Hide();
+            this.imgSegmenPanel.Hide();
+            switch(tag){
+                case 1:
+                    this.airspaceProcessPanel.Show();
+                    break;
+                case 2:
+                    this.smoothPanel.Show();
+                    break;
+                case 3:
+                    this.sharpenPanel.Show();
+                    break;
+                case 4:
+                    this.imgSegmenPanel.Show();
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+
+        //图像分割
+        private void pParaSegButt_Click(object sender, EventArgs e)
+        {
+            pParaSegmen();
+        }
+
+        private void pParaTxtBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                pParaSegmen();
+            }
+        }
+        
+        private void pParaSegmen()
+        {
+            double pPara = 0;
+            try
+            {
+                int start = System.Environment.TickCount;
+                pPara = Convert.ToDouble(this.pParaTxtBox.Text);
+                if (pPara > 100 || pPara < 0)
+                {
+                    MessageBox.Show("请在pPara输入框输入合理参数。");
+                }
+                else
+                {
+                    this.outPicBox.Image = process.pParaSegmen(inPic, pPara);
+                    int end = System.Environment.TickCount;
+                    this.timeBox.Text = (end - start).ToString();
+                    getContrast();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("请在pPara输入框输入合理参数。");
+            }
+        }
+
+        private void uniforMeasureButt_Click(object sender, EventArgs e)
+        {
+            segmen(1);
+        }
+
+        private void segmen(int tag)
+        {
+            try
+            {
+                int start = System.Environment.TickCount;
+
+                switch (tag)
+                {
+                    case 1:
+                        this.outPicBox.Image = process.uniforMeasureSegmen(inPic);
+                        break;
+                    case 2:
+                        this.outPicBox.Image = process.clusterSegmen(inPic);
+                        break;
+                    case 3:
+                        this.outPicBox.Image = process.globalThresholdSegmen(inPic);
+                        break;
+                    default:
+                        break;
+                }
+
+                int end = System.Environment.TickCount;
+                this.timeBox.Text = (end - start).ToString();
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void clusterButt_Click(object sender, EventArgs e)
+        {
+            segmen(2);
+        }
+
+        private void globalThresholdButt_Click(object sender, EventArgs e)
+        {
+            segmen(3);
+        }
+        
     }
 }
