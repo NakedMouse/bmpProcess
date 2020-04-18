@@ -162,6 +162,7 @@ namespace bmpProcess
             outPic.infoHader.biSizeImage = (uint)(newLength);
             outPic.infoHader.length = (uint)(newLength);
             outPic.infoHader.l_width = (uint)newLw;
+            outPic.infoHader.channels = 1;
             if (tag == 1)
             {
                 outPic.toFileStream(this.fs.Name , 1);
@@ -344,7 +345,7 @@ namespace bmpProcess
         /// <param name="inPic"></param>
         /// <param name="outPic"></param>
         //深拷贝对象
-        private static void copy(process inPic , out process outPic)
+        public static void copy(process inPic , out process outPic)
         {
             outPic = (process)inPic.MemberwiseClone();
             if (outPic.fileHader.bfOffBits != 54)
@@ -1635,17 +1636,14 @@ namespace bmpProcess
         /// <param name="inPic"></param>
         /// <param name="pPara"></param>
         /// <returns></returns>
+        //p参数图像分割方法
         public static System.Drawing.Image pParaSegmen(process inPic , double pPara)
         {
             process outPic = new process();
             if (inPic.infoHader.channels != 1)
-            {
                 inPic.transToGray(out outPic, 0);
-            }
             else
-            {
                 copy(inPic, out outPic);
-            }
 
             uint width = outPic.infoHader.biWidth;
             uint height = outPic.infoHader.biHeight;
@@ -1653,13 +1651,13 @@ namespace bmpProcess
             double[] pro = getProportion(grayHis, width * height);
 
             pPara /= 100.0;
-            uint Th = 0;
+            int Th = 0;
             //找距P参数最近的值
             for (int i = 0; i < 255; i++)
             {
                 if (pro[i] < pPara && pro[i + 1] >= pPara)
                 {
-                    Th = (uint)i;
+                    Th = i;
                     break;
                 }
                 if (pro[255] <= pPara)
@@ -1669,14 +1667,7 @@ namespace bmpProcess
                 }
             }
 
-            for (int h = 0; h < height; h++)
-            {
-                for (int w = 0; w < width; w++)
-                {
-                    if (outPic.pixelData[h * outPic.infoHader.l_width + w] >= Th) outPic.pixelData[h * outPic.infoHader.l_width + w] = 255;
-                    else outPic.pixelData[h * outPic.infoHader.l_width + w] = 0;
-                }
-            }
+            outPic.binarization(Th);
  
             return ReturnPhoto(outPic);
         }
@@ -1686,6 +1677,7 @@ namespace bmpProcess
         /// </summary>
         /// <param name="inPic"></param>
         /// <returns></returns>
+        //均匀性度量图像分割方法
         public static System.Drawing.Image uniforMeasureSegmen(process inPic)
         {
             process outPic;
@@ -1725,17 +1717,7 @@ namespace bmpProcess
                 }
             }
 
-            for (int h = 0; h < inPic.infoHader.biHeight; h++)
-            {
-                for (int w = 0; w < inPic.infoHader.biWidth; w++)
-                {
-                    if (outPic.pixelData[h * outPic.infoHader.l_width + w] < Th) 
-                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 0;
-                    else
-                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 255;
-                }
-            }
-
+            outPic.binarization(Th);
             return ReturnPhoto(outPic);
         }
 
@@ -1747,6 +1729,7 @@ namespace bmpProcess
         /// <param name="grayHis"></param>
         /// <param name="Nc"></param>
         /// <returns></returns>
+        //获得灰度直方图的σ值
         private static double getSigma(int indexL , int indexR , int[] grayHis , int Nc)
         {
             double sigma = 0;
@@ -1767,6 +1750,7 @@ namespace bmpProcess
         /// <param name="grayHis"></param>
         /// <param name="Nc"></param>
         /// <returns></returns>
+        //获得灰度直方图的μ值
         private static double getMiu(int indexL, int indexR, int[] grayHis, int Nc)
         {
             double miu = 0;
@@ -1786,6 +1770,7 @@ namespace bmpProcess
         /// <param name="miu"></param>
         /// <param name="tag"></param>
         /// <returns></returns>
+        //聚类算法获得新的聚类中心
         private static double newCenter(int[] grayHis, int[] flag, out double miu , int tag)
         {
             double sigma = 0;
@@ -1812,6 +1797,7 @@ namespace bmpProcess
         /// </summary>
         /// <param name="inPic"></param>
         /// <returns></returns>
+        //聚类方法图像分割
         public static System.Drawing.Image clusterSegmen(process inPic)
         {
             process outPic;
@@ -1823,28 +1809,44 @@ namespace bmpProcess
             double[] pro = getProportion(grayHis,sum);
             int[] flag = new int[256];
 
-            int Th = 128;
-            double sigma1 = getSigma(0, Th - 1, grayHis, (int)(pro[Th] * sum));
-            double sigma2 = getSigma(Th, 255, grayHis, (int)(sum - pro[Th] * sum));
-            double miu1 = getMiu(0, Th - 1, grayHis, (int)(pro[Th] * sum));
-            double miu2 = getMiu(Th, 255, grayHis, (int)(sum - pro[Th] * sum));
-            double f = pro[Th] * sigma1 + (1 - pro[Th]) * sigma2;
+            double sigma1 = getSigma(0, 84, grayHis, (int)(pro[84] * sum));
+            double sigma2 = getSigma(85, 169, grayHis, (int)((pro[169]-pro[84])*sum));
+            double sigma3 = getSigma(170, 255, grayHis, (int)((pro[255]-pro[169])* sum));
+            double miu1 = getMiu(0, 84, grayHis, (int)(pro[84] * sum));
+            double miu2 = getMiu(85, 169, grayHis, (int)((pro[169]-pro[84])*sum));
+            double miu3 = getMiu(170, 255, grayHis, (int)((pro[255] - pro[169]) * sum));
+            double f = 0.33 * sigma1 + 0.33 * sigma2 + 0.33 * sigma3;
             double min = f;
+
+            int k = 0;
 
             do
             {
                 if (min > f) min = f;
                 for (int i = 0; i < 256; i++)
                 {
-                    if (Math.Abs(i - miu1) <= Math.Abs(i - miu2)) flag[i] = 1;
-                    else flag[i] = 2;
+                    //if (Math.Abs(i - miu1) <= Math.Abs(i - miu2)) flag[i] = 1;
+                    //else flag[i] = 2;
+                    double a1 = Math.Abs(i - miu1);
+                    double a2 = Math.Abs(i - miu2);
+                    double a3 = Math.Abs(i - miu3);
+
+                    if (a1 < a3 || a2 < a3)
+                    {
+                        if (a1 < a2) flag[i] = 1;
+                        else flag[i] = 2;
+                    }
+                    else
+                        flag[i] = 3;
                 }
 
                 //重新计算
                 sigma1 = newCenter(grayHis, flag, out miu1, 1);
                 sigma2 = newCenter(grayHis, flag, out miu2, 2);
-                f = (sigma1 + sigma2) / sum;
-            } while (Math.Abs(f - min) < 0.1);
+                sigma3 = newCenter(grayHis, flag, out miu3, 3);
+                f = (sigma1 + sigma2 + sigma3) / sum;
+                k++;
+            } while (Math.Abs(f - min) < 0.1 && k<20);
 
             for (int h = 0; h < inPic.infoHader.biHeight; h++)
             {
@@ -1852,6 +1854,8 @@ namespace bmpProcess
                 {
                     if (flag[outPic.pixelData[h * outPic.infoHader.l_width + w]] == 1)
                         outPic.pixelData[h * outPic.infoHader.l_width + w] = 0;
+                    else if (flag[outPic.pixelData[h * outPic.infoHader.l_width + w]] == 2)
+                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 128;
                     else
                         outPic.pixelData[h * outPic.infoHader.l_width + w] = 255;
                 }
@@ -1865,6 +1869,7 @@ namespace bmpProcess
         /// </summary>
         /// <param name="inPic"></param>
         /// <returns></returns>
+        //全阈值方法图像分割
         public static System.Drawing.Image globalThresholdSegmen(process inPic)
         {
             process outPic;
@@ -1875,27 +1880,310 @@ namespace bmpProcess
             double sum = outPic.infoHader.biWidth * outPic.infoHader.biHeight;
             double[] pro = getProportion(grayHis, sum);
 
-            int Th = 128;
+            double Th = 128;
 
-            double miu1, miu2, temp;
+            double miu1, miu2, ThPre;
             do
             {
-                miu1 = getMiu(0, Th - 1, grayHis, (int)(pro[Th - 1] * sum));
-                miu2 = getMiu(Th, 255, grayHis, (int)((1.0 - pro[Th - 1]) * sum));
-                temp = (miu1 + miu2) / 2;
-            } while (Math.Abs(temp-Th)<0.1);
+                ThPre = Th;
+                miu1 = getMiu(0, (int)Th - 1, grayHis, (int)(pro[(int)Th - 1] * sum));
+                miu2 = getMiu((int)Th, 255, grayHis, (int)((1.0 - pro[(int)Th - 1]) * sum));
+                Th = (miu1 + miu2) / 2;
+            } while (Math.Abs(ThPre - Th) > 2 && Th > 0 && Th < 256);
 
-            for (int h = 0; h < inPic.infoHader.biHeight; h++)
+            outPic.binarization((int)Th);
+            return ReturnPhoto(outPic);
+        }
+
+
+
+
+
+
+        /**
+         * 二值图像分析
+         * 
+         **/
+
+        /// <summary>
+        /// 根据输入阈值进行二值化
+        /// </summary>
+        /// <param name="Th"></param>
+        //根据输入阈值进行二值化
+        public void binarization(int Th)
+        {
+            uint width = this.infoHader.biWidth;
+            uint height = this.infoHader.biHeight;
+
+            for (int h = 0; h < height; h++)
             {
-                for (int w = 0; w < inPic.infoHader.biWidth; w++)
+                for (int w = 0; w < width; w++)
                 {
-                    if (outPic.pixelData[h * outPic.infoHader.l_width + w] < Th)
-                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 0;
+                    if (this.pixelData[h * this.infoHader.l_width + w] < Th)
+                        this.pixelData[h * this.infoHader.l_width + w] = 0;
                     else
-                        outPic.pixelData[h * outPic.infoHader.l_width + w] = 255;
+                        this.pixelData[h * this.infoHader.l_width + w] = 255;
                 }
             }
-            return ReturnPhoto(outPic);
+        }
+
+        /// <summary>
+        /// 根据lab1、lab2修改全局lab
+        /// </summary>
+        /// <param name="lab1"></param>
+        /// <param name="lab2"></param>
+        /// <returns></returns>
+        //根据lab1、lab2修改全局lab
+        private int changeLab(int lab1,int lab2)
+        {
+            uint height = this.infoHader.biHeight;
+            uint width = this.infoHader.biWidth;
+
+            if (lab1 > lab2)
+            {
+                int temp = lab1;
+                lab1 = lab2;
+                lab2 = temp;
+            }
+
+            for (int h = 0; h < height; h++)
+            {
+                for (int w = 0; w < width; w++)
+                {
+                    if (this.pixelData[h * this.infoHader.l_width + w] == 255) continue;
+                    if (this.pixelData[h * this.infoHader.l_width + w] == lab2)
+                        this.pixelData[h * this.infoHader.l_width + w] = (byte)lab1;
+                    else if (this.pixelData[h * this.infoHader.l_width + w] > lab2)
+                        this.pixelData[h * this.infoHader.l_width + w] = (byte)(this.pixelData[h * this.infoHader.l_width + w] - 1);
+                }
+            }
+            return lab1;
+        }
+        
+        /// <summary>
+        /// 贴标签,mode==1为4连通，其余为8连通
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        //贴标签,mode==1为4连通，其余为8连通l
+        public static process tagLabel(process inPic, int mode)
+        {
+            process outPic;
+            if (inPic.infoHader.channels != 1)
+                inPic.transToGray(out outPic, 0);
+            else
+                copy(inPic, out outPic);
+            outPic.binarization(200);
+
+            int N = 0;
+            int height = (int)outPic.infoHader.biHeight;
+            int width = (int)outPic.infoHader.biWidth;
+            int l_width = (int)outPic.infoHader.l_width;
+
+            for (int h = 1; h < height; h++)
+            {
+                int hlow = h - 1;
+                for (int w = 1; w < width - 1; w++)
+                {
+                    if (outPic.pixelData[h * l_width + w] == 255) continue;
+                    int lab1 = -1, lab2 = -1;
+
+                    if (mode == 1)   //4连通模式
+                    {
+                        lab1 = outPic.pixelData[hlow * l_width + w];
+                        lab2 = outPic.pixelData[h * l_width + w - 1];
+
+                        if (lab1 != 255)
+                        {
+                            if (lab2 == lab1 || lab2 == 255)
+                                outPic.pixelData[h * l_width + w] = (byte)lab1;
+                            else if (lab2 != lab1)
+                            {
+                                lab1 = outPic.changeLab(lab1, lab2);
+                                N--;
+                                outPic.pixelData[h * l_width + w] = (byte)lab1;
+                            }
+                        }
+                        else if (lab2 != 255)
+                            outPic.pixelData[h * l_width + w] = (byte)lab2;
+                        else
+                        {
+                            N++;
+                            outPic.pixelData[h * l_width + w] = (byte)N;
+                        }
+                        continue;
+                    }
+
+
+                    //判断第一行是否存在两个标签-8连通
+                    for (int k = -1; k < 2; k++)
+                    {
+                        int pixel = outPic.pixelData[hlow * l_width + w + k];
+                        if (pixel != 255)
+                        {
+                            if (lab1 == -1)
+                                lab1 = pixel;
+                            else if(lab1 != pixel)
+                            {
+                                lab2 = pixel;
+                                lab1 = outPic.changeLab(lab1, lab2);
+                                N--;
+                                outPic.pixelData[h * l_width + w] = (byte)lab1;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (outPic.pixelData[h * l_width + w] != 0) continue;
+
+                    lab2 = outPic.pixelData[h * l_width + w - 1];
+                    if (lab1 == -1)     //上一行全为255
+                    {
+                        if (lab2 == 255)
+                        {
+                            N++;
+                            outPic.pixelData[h * l_width + w] = (byte)N;
+                        }
+                        else
+                            outPic.pixelData[h * l_width + w] = (byte)lab2;
+                    }
+                    else      //上一行仅有一个lab
+                    {
+                        if (lab1 == lab2 || lab2 == 255)
+                            outPic.pixelData[h * l_width + w] = (byte)lab1;
+                        else
+                        {
+                            lab1 = outPic.changeLab(lab1, lab2);
+                            N--;
+                            outPic.pixelData[h * l_width + w] = (byte)lab1;
+                        }
+                    }
+                }
+            }
+
+            return outPic;
+        }
+
+        /// <summary>
+        /// 腐蚀函数，filter二维数组参数表示结构元，0表示无，1表示有；（x，y）表示原点坐标,mode==1为腐蚀，mode！=1为膨胀
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="filter"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        //腐蚀函数
+        public static process corroAndExpand(process inPic,int[,] filter, int x, int y,int mode)
+        {
+            process outPic;
+            if (inPic.infoHader.channels != 1)
+            {
+                inPic.transToGray(out outPic, 0);
+                copy(outPic, out inPic);
+            }
+            else
+                copy(inPic, out outPic);
+            outPic.binarization(200);
+
+            int width = (int)outPic.infoHader.biWidth;
+            int height = (int)outPic.infoHader.biHeight;
+            int l_width = (int)outPic.infoHader.l_width;
+
+            int xL = x - 1, xR = filter.GetLength(0) - x;
+            int yD = y - 1, yU = filter.GetLength(1) - y;
+
+            for (int h = yD; h < height - yU; h++)
+            {
+                int hLow = h - yD;
+                for (int w = xL; w < width - xR; w++)
+                {
+                    int wLow = w - xL;
+                    bool tag = true;
+
+                    //根据模板遍历
+                    for (int i = hLow; i <= h + yU; i++)
+                    {
+                        for (int j = wLow; j <= w + xR; j++)
+                        {
+                            if (mode == 1)        //腐蚀模式
+                            {
+                                if (filter[i - hLow, j - wLow] == 1 && inPic.pixelData[i * l_width + j] == 255)
+                                {
+                                    outPic.pixelData[h * l_width + w] = 255;
+                                    tag = false;
+                                    break;
+                                }
+                            }
+                            else            //膨胀模式
+                            {
+                                if (filter[i - hLow, j - wLow] == 1 && inPic.pixelData[i * l_width + j] != 255)
+                                {
+                                    outPic.pixelData[h * l_width + w] = 0;
+                                    tag = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!tag) break;
+                    }
+                }
+            }
+
+            return outPic;
+        }
+    
+        //开、闭运算
+        /// <summary>
+        /// filter为结构元模板，（x，y）为原点位置，corroT为腐蚀次数，expandT为膨胀次数，mode==1开运算，mode==2闭运算
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="filter"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="corroT"></param>
+        /// <param name="expandT"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public static process openAndCloseOperate(process inPic, int[,] filter,int x,int y,int corroT,int expandT,int mode)
+        {
+            process outPic;
+            copy(inPic, out outPic);
+
+            switch (mode)
+            {
+                case 1:     //开运算
+                    for (int i = 0; i < corroT; i++)
+                        outPic = process.corroAndExpand(outPic, filter, x, y, 1);
+                    for (int i = 0; i < expandT; i++)
+                        outPic = process.corroAndExpand(outPic, filter, x, y, 2);
+                    break;
+                case 2:     //闭运算
+                    for (int i = 0; i < expandT; i++)
+                        outPic = process.corroAndExpand(outPic, filter, x, y, 2);
+                    for (int i = 0; i < corroT; i++)
+                        outPic = process.corroAndExpand(outPic, filter, x, y, 1);
+                    break;
+            }
+
+            return outPic;
+        }
+
+
+        //边缘提取
+        public static process getEdge(process inPic,int[,] filter,int x,int y)
+        {
+            process outPic;
+            copy(inPic, out outPic);
+
+
+
+
+
+
+
+            return outPic;
         }
     }
 }

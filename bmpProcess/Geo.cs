@@ -568,6 +568,7 @@ namespace bmpProcess
             this.airspaceProcessPanel.Hide();
             this.sharpenPanel.Hide();
             this.imgSegmenPanel.Hide();
+            this.binaryPanel.Hide();
             switch(tag){
                 case 1:
                     this.airspaceProcessPanel.Show();
@@ -581,12 +582,19 @@ namespace bmpProcess
                 case 4:
                     this.imgSegmenPanel.Show();
                     break;
+                case 5:
+                    this.binaryPanel.Show();
+                    break;
                 default:
                     break;
             }
 
         }
 
+        private void binaryButt_Click(object sender, EventArgs e)
+        {
+            switchPanel(5); 
+        }
 
         //图像分割
         private void pParaSegButt_Click(object sender, EventArgs e)
@@ -672,6 +680,137 @@ namespace bmpProcess
         {
             segmen(3);
         }
+
         
+        //二值处理
+        private void tagLab8Butt_Click(object sender, EventArgs e)
+        {
+            int mode = 0;
+            tagLabel(mode);
+        }
+
+        private void tagLab4Butt_Click(object sender, EventArgs e)
+        {
+            int mode = 1;
+            tagLabel(mode);
+        }
+
+        private void tagLabel(int mode)
+        {
+            outPic = process.tagLabel(inPic, mode);
+            try
+            {
+                this.outPicBox.Image = process.ReturnPhoto(outPic);
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void biButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (inPic.infoHader.channels != 1)
+                {
+                    inPic.transToGray(out outPic, 0);
+                }
+                else
+                {
+                    process.copy(inPic, out outPic);
+                }
+                outPic.binarization(200);
+                this.outPicBox.Image = process.ReturnPhoto(outPic);
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void corrosionButt_Click(object sender, EventArgs e)
+        {
+            corrosionAndExpand(1);
+        }
+
+        private void corrTimesTxtBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                corrosionAndExpand(1);
+            }
+        }
+
+        private void expandButt_Click(object sender, EventArgs e)
+        {
+            corrosionAndExpand(2);
+        }
+
+        private void expandTxtBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                corrosionAndExpand(2);
+            }
+        }
+
+        private void corrosionAndExpand(int mode)
+        {
+            try
+            {
+                int[,] filter ={{1,0},
+                                {1,1}};
+                int times;
+                if (mode == 1)
+                    times = Convert.ToInt16(this.corrTimesTxtBox.Text);
+                else
+                    times = Convert.ToInt16(this.expandTxtBox.Text);
+                process.copy(inPic, out outPic);
+
+                for (int i = 0; i < times; i++)
+                    outPic = process.corroAndExpand(outPic, filter, 1, 1, mode);
+                
+                this.outPicBox.Image = process.ReturnPhoto(outPic);
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void openOperaButt_Click(object sender, EventArgs e)
+        {
+            openAndClose(1);
+        }
+
+        private void closeOperaButt_Click(object sender, EventArgs e)
+        {
+            openAndClose(2);
+        }
+
+        private void openAndClose(int mode)
+        {
+            try
+            {
+                int[,] filter ={{0,1,0},
+                               {1,1,1},
+                               {0,1,0}};
+                int corroTimes = Convert.ToInt16(this.corrTimesTxtBox.Text);
+                int expandTimes = Convert.ToInt16(this.expandTxtBox.Text);
+
+                outPic = process.openAndCloseOperate(inPic, filter, 2, 2, corroTimes, expandTimes, mode);
+                this.outPicBox.Image = process.ReturnPhoto(outPic);
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+    
     }
 }
