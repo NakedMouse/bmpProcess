@@ -761,8 +761,8 @@ namespace bmpProcess
         {
             try
             {
-                int[,] filter ={{1,0},
-                                {1,1}};
+                //int[,] filter ={{0,1,0},{1,1,1},{0,1,0}};
+                int[,] filter = { { 1, 0 }, { 1, 1 } };
                 int times;
                 if (mode == 1)
                     times = Convert.ToInt16(this.corrTimesTxtBox.Text);
@@ -796,13 +796,14 @@ namespace bmpProcess
         {
             try
             {
-                int[,] filter ={{0,1,0},
-                               {1,1,1},
-                               {0,1,0}};
+                //int[,] filter ={{0,1,0},
+                //               {1,1,1},
+                //               {0,1,0}};
+                int[,] filter = { { 1, 0 }, { 1, 1 } };
                 int corroTimes = Convert.ToInt16(this.corrTimesTxtBox.Text);
                 int expandTimes = Convert.ToInt16(this.expandTxtBox.Text);
 
-                outPic = process.openAndCloseOperate(inPic, filter, 2, 2, corroTimes, expandTimes, mode);
+                outPic = process.openAndCloseOperate(inPic, filter, 1,1 , corroTimes, expandTimes, mode);
                 this.outPicBox.Image = process.ReturnPhoto(outPic);
                 getContrast();
             }
@@ -811,6 +812,69 @@ namespace bmpProcess
                 MessageBox.Show(ex.Message);
             }
         }
+
+        private void getEdgeButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int[,] filter ={{0,1,0},
+                               {1,1,1},
+                               {0,1,0}};
+
+                outPic = process.getEdge(inPic, filter, 2, 2);
+                this.outPicBox.Image = process.ReturnPhoto(outPic);
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void holeFillingButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                outPic = process.holeFilling(inPic,false);
+                this.outPicBox.Image = process.ReturnPhoto(outPic);
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void holeFilling1Butt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                outPic = process.holeFilling(inPic, true);
+                this.outPicBox.Image = process.ReturnPhoto(outPic);
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void getBoneButt_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int corroTimes = Convert.ToInt16(this.corrTimesTxtBox.Text);
+                outPic = process.getBone(inPic, corroTimes);
+                this.outPicBox.Image = process.ReturnPhoto(outPic);
+                getContrast();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+
     
     }
 }

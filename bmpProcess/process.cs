@@ -7,6 +7,8 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows;
+using System.Threading;
+using System.Drawing;
 
 namespace bmpProcess
 {
@@ -105,6 +107,11 @@ namespace bmpProcess
         /// <returns></returns>
         public bool transToGray(out process outPic, int tag)
         {
+            if (infoHader.channels == 1)
+            {
+                outPic = this;
+                return true;
+            }
             if (infoHader.channels != 3) 
             {
                 outPic = new process();
@@ -556,6 +563,14 @@ namespace bmpProcess
         
         
         //双目运算 mode 1,2,3,4分别表示加减乘除 , 5,6表示逻辑与、或运算
+        /// <summary>
+        /// 双目运算 mode 1,2,3,4分别表示加减乘除 , 5,6表示逻辑与、或运算
+        /// </summary>
+        /// <param name="inPic1"></param>
+        /// <param name="inPic2"></param>
+        /// <param name="outPic"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
         public static bool doubOperator(process inPic1, process inPic2, out process outPic , int mode)
         {
             //大小不一致无法加减
@@ -2170,18 +2185,241 @@ namespace bmpProcess
             return outPic;
         }
 
-
         //边缘提取
+        /// <summary>
+        /// filter结构体模板,(x,y)原点位置
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="filter"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
         public static process getEdge(process inPic,int[,] filter,int x,int y)
         {
+            process outPic,bPic;
+            if (inPic.infoHader.channels != 1)
+                inPic.transToGray(out outPic, 2);
+            else
+                copy(inPic, out outPic);        
+
+            //使用的是白色背景图片，所以用的膨胀
+            bPic = corroAndExpand(outPic, filter, x, y, 1);
+            bPic = corroAndExpand(bPic, filter, x, y, 1);
+
+            doubOperator(bPic, outPic, out inPic, 2);
+            //doubOperator(outPic, bPic, out inPic, 2);
+            return inPic;
+        }
+
+        /// <summary>
+        /// 空洞填充，type==true 背景颜色为255，type==false 背景颜色为0
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        //空洞填充
+        public static process holeFilling(process inPic, bool type)
+        {
             process outPic;
-            copy(inPic, out outPic);
+            if (inPic.infoHader.channels != 1)
+                inPic.transToGray(out outPic, 2);
+            else
+                copy(inPic, out outPic);
 
+            int l_width = (int)outPic.infoHader.l_width;
+            int height = (int)outPic.infoHader.biHeight;
+            int width = (int)outPic.infoHader.biWidth;
 
+            int Color;
+            if (type)
+                Color = 255;
+            else
+                Color = 0;
 
+            for (int h = 0; h < height; h++)
+            {
+                if (outPic.pixelData[h * l_width + 0] == Color) floodFill(ref outPic, new Point(0, h), 127);
+                if (outPic.pixelData[h * l_width + width - 1] == Color) floodFill(ref outPic, new Point(width - 1, h), 127);
+            }
 
+            for (int w = 0; w < width; w++)
+            {
+                if (outPic.pixelData[w] == Color) floodFill(ref outPic, new Point(w, 0), 127);
+                if (outPic.pixelData[w + (height - 1) * l_width] == Color) floodFill(ref outPic, new Point(w, height - 1), 127);
+            }
 
+            for (int h = 0; h < height; h++)
+            {
+                for (int w = 0; w < width; w++)
+                {
+                    if (outPic.pixelData[h * l_width + w] == 127)
+                        outPic.pixelData[h * l_width + w] = (byte)Color;
+                    else
+                        outPic.pixelData[h * l_width + w] = (byte)(255 - Color);
+                }
+            }
+            return outPic;
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inPic"></param>
+        /// <param name="point"></param>
+        /// <param name="fillColor"></param>
+        //广度优先搜索，找到所有的4近邻点并标记为fillColor
+        private static void floodFill(ref process inPic, Point point, int fillColor)
+        {
+            int height = (int)inPic.infoHader.biHeight;
+            int width = (int)inPic.infoHader.biWidth;
+            int l_width = (int)inPic.infoHader.l_width;
+            int pickColor = inPic.pixelData[point.Y * l_width + point.X];
+            if (point.X < 0 || point.X >= width || point.Y < 0 || point.Y >= height) return;
+
+            Stack<Point> points = new Stack<Point>(width * height);
+            points.Push(point);
+
+            while (points.Count > 0)
+            {
+                Point p = points.Pop();
+                inPic.pixelData[p.Y * l_width + p.X] = (byte)fillColor;
+                
+                //考察4近邻
+                if (p.X > 0 && inPic.pixelData[p.X - 1 + p.Y * l_width ] == pickColor)
+                {
+                    inPic.pixelData[p.Y * l_width + p.X - 1] = (byte)fillColor;
+                    points.Push(new Point(p.X - 1, p.Y));
+                }
+                if (p.X < (width - 1) && inPic.pixelData[p.X + 1 + p.Y * l_width] == pickColor)
+                {
+                    inPic.pixelData[p.Y * l_width + p.X + 1] = (byte)fillColor;
+                    points.Push(new Point(p.X + 1, p.Y));
+                }
+                if (p.Y > 0 && inPic.pixelData[p.X + (p.Y - 1) * l_width] == pickColor)
+                {
+                    inPic.pixelData[(p.Y - 1) * l_width + p.X] = (byte)fillColor;
+                    points.Push(new Point(p.X, p.Y - 1));
+                }
+                if (p.Y < (height - 1) && inPic.pixelData[p.X + (p.Y + 1) * l_width] == pickColor)
+                {
+                    inPic.pixelData[(p.Y + 1) * l_width + p.X] = (byte)fillColor;
+                    points.Push(new Point(p.X, p.Y + 1));
+                }
+            }
+
+            points.Clear();
+        }
+
+        //骨架提取  以pixel==0为目标
+        private void xDirectThin(int[] array)
+        {
+            uint height = this.infoHader.biHeight;
+            uint width = this.infoHader.biWidth;
+            uint l_width = infoHader.l_width;
+            int Next = 1;
+
+            for (int h = 0; h < height; h++)
+            {
+                for (int w = 0; w < width; w++)
+                {
+                    if (Next == 0)  //相邻被处理后跳过该点
+                        Next = 1;
+                    else
+                    {
+                        if(pixelData[h*l_width+w] == 255) continue;
+                        if (w > 0 && w < width - 1)
+                            if (pixelData[h * l_width + w - 1] == 0 && pixelData[h * l_width + w + 1] == 0) continue;
+                        
+                        //遍历8近邻
+                        int[] a = new int[9];
+                        for (int i = -1; i < 2; i++)
+                        {
+                            for (int j = -1; j < 2; j++)
+                            {
+                                if ((h + i) >= 0 && (h + i) < height && (w + j) >= 0 && (w + j < width))
+                                    if (pixelData[(h + i) * l_width + w + j] == 0)
+                                        a[(i + 1) * 3 + j + 1] = 1;
+                            }
+                        }
+                        int sum = a[0] * 1 + a[1] * 2 + a[2] * 4 + a[3] * 8 + a[5] * 16 + a[6] * 32 + a[7] * 64 + a[8] * 128;
+                        pixelData[h * l_width + w] = (byte)(array[sum] * 255);
+                        if (array[sum] == 1)
+                            Next = 0;
+                    }
+                }
+            }
+        }
+
+        private void yDirectThin(int[] array)
+        {
+            uint height = this.infoHader.biHeight;
+            uint width = this.infoHader.biWidth;
+            uint l_width = infoHader.l_width;
+            int Next = 1;
+
+            for (int w = 0; w < width; w++)
+            {
+                for (int h = 0; h < height; h++)
+                {
+                    if (Next == 0)  //相邻被处理后跳过该点
+                        Next = 1;
+                    else
+                    {
+                        if (pixelData[h * l_width + w] == 255) continue;
+                        if (h > 0 && h < height - 1)
+                            if (pixelData[(h + 1) * l_width + w] == 0 && pixelData[(h - 1) * l_width + w + 1] == 0) continue;
+
+                        //遍历8近邻
+                        int[] a = new int[9];
+                        for (int i = -1; i < 2; i++)
+                        {
+                            for (int j = -1; j < 2; j++)
+                            {
+                                if ((h + i) >= 0 && (h + i) < height && (w + j) >= 0 && (w + j < width))
+                                    if (pixelData[(h + i) * l_width + w + j] == 0)
+                                        a[(i + 1) * 3 + j + 1] = 1;
+                            }
+                        }
+                        int sum = a[0] * 1 + a[1] * 2 + a[2] * 4 + a[3] * 8 + a[5] * 16 + a[6] * 32 + a[7] * 64 + a[8] * 128;
+                        pixelData[h * l_width + w] = (byte)(array[sum] * 255);
+                        if (array[sum] == 1)
+                            Next = 0;
+                    }
+                }
+            }
+        }
+
+        public static process getBone(process inPic, int num)
+        {
+            process outPic;
+            if (inPic.infoHader.channels != 1)
+                inPic.transToGray(out outPic, 2);
+            else
+                copy(inPic, out outPic);
+            outPic.binarization(230);
+
+            int[] array = { 0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,
+                            0,1,0,0,1,1,1,0,0,0,0,0,0,0,0,1,
+                            0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,
+                            1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,
+                            1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,
+                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                            1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,1,
+                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                            0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,
+                            1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,
+                            0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,
+                            1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+                            1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,
+                            1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+                            1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,0,
+                            1,1,0,0,1,1,1,0,1,1,0,0,1,0,0,0};
+
+            for (int i = 0; i < num; i++)
+            {
+                outPic.xDirectThin(array);
+                outPic.yDirectThin(array);
+            }
 
             return outPic;
         }

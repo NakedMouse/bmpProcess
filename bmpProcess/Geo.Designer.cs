@@ -90,22 +90,23 @@
             this.pParaSegButt = new System.Windows.Forms.Button();
             this.binaryButt = new System.Windows.Forms.Button();
             this.binaryPanel = new System.Windows.Forms.Panel();
+            this.holeFilling1Butt = new System.Windows.Forms.Button();
+            this.getBoneButt = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.holeFillingButt = new System.Windows.Forms.Button();
+            this.getEdgeButt = new System.Windows.Forms.Button();
+            this.label10 = new System.Windows.Forms.Label();
+            this.expandTxtBox = new System.Windows.Forms.TextBox();
+            this.closeOperaButt = new System.Windows.Forms.Button();
+            this.openOperaButt = new System.Windows.Forms.Button();
+            this.label8 = new System.Windows.Forms.Label();
+            this.corrTimesTxtBox = new System.Windows.Forms.TextBox();
+            this.biButt = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.tagLab4Butt = new System.Windows.Forms.Button();
             this.expandButt = new System.Windows.Forms.Button();
             this.corrosionButt = new System.Windows.Forms.Button();
             this.tagLab8Butt = new System.Windows.Forms.Button();
-            this.biButt = new System.Windows.Forms.Button();
-            this.corrTimesTxtBox = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.openOperaButt = new System.Windows.Forms.Button();
-            this.closeOperaButt = new System.Windows.Forms.Button();
-            this.label10 = new System.Windows.Forms.Label();
-            this.expandTxtBox = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.outPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.inPicBox)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -785,10 +786,11 @@
             // binaryPanel
             // 
             this.binaryPanel.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.binaryPanel.Controls.Add(this.button4);
+            this.binaryPanel.Controls.Add(this.holeFilling1Butt);
+            this.binaryPanel.Controls.Add(this.getBoneButt);
             this.binaryPanel.Controls.Add(this.button3);
-            this.binaryPanel.Controls.Add(this.button2);
-            this.binaryPanel.Controls.Add(this.button1);
+            this.binaryPanel.Controls.Add(this.holeFillingButt);
+            this.binaryPanel.Controls.Add(this.getEdgeButt);
             this.binaryPanel.Controls.Add(this.label10);
             this.binaryPanel.Controls.Add(this.expandTxtBox);
             this.binaryPanel.Controls.Add(this.closeOperaButt);
@@ -805,6 +807,127 @@
             this.binaryPanel.Name = "binaryPanel";
             this.binaryPanel.Size = new System.Drawing.Size(362, 313);
             this.binaryPanel.TabIndex = 41;
+            // 
+            // holeFilling1Butt
+            // 
+            this.holeFilling1Butt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.holeFilling1Butt.Location = new System.Drawing.Point(231, 142);
+            this.holeFilling1Butt.Name = "holeFilling1Butt";
+            this.holeFilling1Butt.Size = new System.Drawing.Size(100, 30);
+            this.holeFilling1Butt.TabIndex = 31;
+            this.holeFilling1Butt.Text = "空洞填充-1";
+            this.holeFilling1Butt.UseVisualStyleBackColor = true;
+            this.holeFilling1Butt.Click += new System.EventHandler(this.holeFilling1Butt_Click);
+            // 
+            // getBoneButt
+            // 
+            this.getBoneButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.getBoneButt.Location = new System.Drawing.Point(125, 178);
+            this.getBoneButt.Name = "getBoneButt";
+            this.getBoneButt.Size = new System.Drawing.Size(100, 30);
+            this.getBoneButt.TabIndex = 30;
+            this.getBoneButt.Text = "骨架提取";
+            this.getBoneButt.UseVisualStyleBackColor = true;
+            this.getBoneButt.Click += new System.EventHandler(this.getBoneButt_Click);
+            // 
+            // button3
+            // 
+            this.button3.Cursor = System.Windows.Forms.Cursors.Default;
+            this.button3.Location = new System.Drawing.Point(20, 178);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(100, 30);
+            this.button3.TabIndex = 29;
+            this.button3.Text = "连通域";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // holeFillingButt
+            // 
+            this.holeFillingButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.holeFillingButt.Location = new System.Drawing.Point(125, 142);
+            this.holeFillingButt.Name = "holeFillingButt";
+            this.holeFillingButt.Size = new System.Drawing.Size(100, 30);
+            this.holeFillingButt.TabIndex = 28;
+            this.holeFillingButt.Text = "空洞填充-0";
+            this.holeFillingButt.UseVisualStyleBackColor = true;
+            this.holeFillingButt.Click += new System.EventHandler(this.holeFillingButt_Click);
+            // 
+            // getEdgeButt
+            // 
+            this.getEdgeButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.getEdgeButt.Location = new System.Drawing.Point(20, 142);
+            this.getEdgeButt.Name = "getEdgeButt";
+            this.getEdgeButt.Size = new System.Drawing.Size(100, 30);
+            this.getEdgeButt.TabIndex = 27;
+            this.getEdgeButt.Text = "边缘提取";
+            this.getEdgeButt.UseVisualStyleBackColor = true;
+            this.getEdgeButt.Click += new System.EventHandler(this.getEdgeButt_Click);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(41, 267);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(67, 15);
+            this.label10.TabIndex = 26;
+            this.label10.Text = "膨胀次数";
+            // 
+            // expandTxtBox
+            // 
+            this.expandTxtBox.Location = new System.Drawing.Point(152, 264);
+            this.expandTxtBox.Name = "expandTxtBox";
+            this.expandTxtBox.Size = new System.Drawing.Size(100, 25);
+            this.expandTxtBox.TabIndex = 25;
+            this.expandTxtBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.expandTxtBox_KeyUp);
+            // 
+            // closeOperaButt
+            // 
+            this.closeOperaButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.closeOperaButt.Location = new System.Drawing.Point(231, 102);
+            this.closeOperaButt.Name = "closeOperaButt";
+            this.closeOperaButt.Size = new System.Drawing.Size(100, 30);
+            this.closeOperaButt.TabIndex = 24;
+            this.closeOperaButt.Text = "闭运算";
+            this.closeOperaButt.UseVisualStyleBackColor = true;
+            this.closeOperaButt.Click += new System.EventHandler(this.closeOperaButt_Click);
+            // 
+            // openOperaButt
+            // 
+            this.openOperaButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.openOperaButt.Location = new System.Drawing.Point(125, 102);
+            this.openOperaButt.Name = "openOperaButt";
+            this.openOperaButt.Size = new System.Drawing.Size(100, 30);
+            this.openOperaButt.TabIndex = 23;
+            this.openOperaButt.Text = "开运算";
+            this.openOperaButt.UseVisualStyleBackColor = true;
+            this.openOperaButt.Click += new System.EventHandler(this.openOperaButt_Click);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(41, 236);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(67, 15);
+            this.label8.TabIndex = 22;
+            this.label8.Text = "腐蚀次数";
+            // 
+            // corrTimesTxtBox
+            // 
+            this.corrTimesTxtBox.Location = new System.Drawing.Point(152, 233);
+            this.corrTimesTxtBox.Name = "corrTimesTxtBox";
+            this.corrTimesTxtBox.Size = new System.Drawing.Size(100, 25);
+            this.corrTimesTxtBox.TabIndex = 21;
+            this.corrTimesTxtBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.corrTimesTxtBox_KeyUp);
+            // 
+            // biButt
+            // 
+            this.biButt.Cursor = System.Windows.Forms.Cursors.Default;
+            this.biButt.Location = new System.Drawing.Point(124, 17);
+            this.biButt.Name = "biButt";
+            this.biButt.Size = new System.Drawing.Size(100, 30);
+            this.biButt.TabIndex = 20;
+            this.biButt.Text = "二值化";
+            this.biButt.UseVisualStyleBackColor = true;
+            this.biButt.Click += new System.EventHandler(this.biButt_Click);
             // 
             // label9
             // 
@@ -858,114 +981,6 @@
             this.tagLab8Butt.Text = "贴标签-8";
             this.tagLab8Butt.UseVisualStyleBackColor = true;
             this.tagLab8Butt.Click += new System.EventHandler(this.tagLab8Butt_Click);
-            // 
-            // biButt
-            // 
-            this.biButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.biButt.Location = new System.Drawing.Point(124, 17);
-            this.biButt.Name = "biButt";
-            this.biButt.Size = new System.Drawing.Size(100, 30);
-            this.biButt.TabIndex = 20;
-            this.biButt.Text = "二值化";
-            this.biButt.UseVisualStyleBackColor = true;
-            this.biButt.Click += new System.EventHandler(this.biButt_Click);
-            // 
-            // corrTimesTxtBox
-            // 
-            this.corrTimesTxtBox.Location = new System.Drawing.Point(152, 233);
-            this.corrTimesTxtBox.Name = "corrTimesTxtBox";
-            this.corrTimesTxtBox.Size = new System.Drawing.Size(100, 25);
-            this.corrTimesTxtBox.TabIndex = 21;
-            this.corrTimesTxtBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.corrTimesTxtBox_KeyUp);
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(41, 236);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(67, 15);
-            this.label8.TabIndex = 22;
-            this.label8.Text = "腐蚀次数";
-            // 
-            // openOperaButt
-            // 
-            this.openOperaButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.openOperaButt.Location = new System.Drawing.Point(125, 102);
-            this.openOperaButt.Name = "openOperaButt";
-            this.openOperaButt.Size = new System.Drawing.Size(100, 30);
-            this.openOperaButt.TabIndex = 23;
-            this.openOperaButt.Text = "开运算";
-            this.openOperaButt.UseVisualStyleBackColor = true;
-            this.openOperaButt.Click += new System.EventHandler(this.openOperaButt_Click);
-            // 
-            // closeOperaButt
-            // 
-            this.closeOperaButt.Cursor = System.Windows.Forms.Cursors.Default;
-            this.closeOperaButt.Location = new System.Drawing.Point(231, 102);
-            this.closeOperaButt.Name = "closeOperaButt";
-            this.closeOperaButt.Size = new System.Drawing.Size(100, 30);
-            this.closeOperaButt.TabIndex = 24;
-            this.closeOperaButt.Text = "闭运算";
-            this.closeOperaButt.UseVisualStyleBackColor = true;
-            this.closeOperaButt.Click += new System.EventHandler(this.closeOperaButt_Click);
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(41, 267);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(67, 15);
-            this.label10.TabIndex = 26;
-            this.label10.Text = "膨胀次数";
-            // 
-            // expandTxtBox
-            // 
-            this.expandTxtBox.Location = new System.Drawing.Point(152, 264);
-            this.expandTxtBox.Name = "expandTxtBox";
-            this.expandTxtBox.Size = new System.Drawing.Size(100, 25);
-            this.expandTxtBox.TabIndex = 25;
-            this.expandTxtBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.expandTxtBox_KeyUp);
-            // 
-            // button1
-            // 
-            this.button1.Cursor = System.Windows.Forms.Cursors.Default;
-            this.button1.Location = new System.Drawing.Point(20, 142);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 30);
-            this.button1.TabIndex = 27;
-            this.button1.Text = "边缘提取";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // button2
-            // 
-            this.button2.Cursor = System.Windows.Forms.Cursors.Default;
-            this.button2.Location = new System.Drawing.Point(125, 142);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(100, 30);
-            this.button2.TabIndex = 28;
-            this.button2.Text = "空洞填充";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // button3
-            // 
-            this.button3.Cursor = System.Windows.Forms.Cursors.Default;
-            this.button3.Location = new System.Drawing.Point(20, 178);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(100, 30);
-            this.button3.TabIndex = 29;
-            this.button3.Text = "连通域";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button4
-            // 
-            this.button4.Cursor = System.Windows.Forms.Cursors.Default;
-            this.button4.Location = new System.Drawing.Point(125, 178);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(100, 30);
-            this.button4.TabIndex = 30;
-            this.button4.Text = "骨架提取";
-            this.button4.UseVisualStyleBackColor = true;
             // 
             // Geo
             // 
@@ -1094,9 +1109,10 @@
         private System.Windows.Forms.Button closeOperaButt;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox expandTxtBox;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button getEdgeButt;
+        private System.Windows.Forms.Button holeFillingButt;
+        private System.Windows.Forms.Button getBoneButt;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button holeFilling1Butt;
     }
 }
